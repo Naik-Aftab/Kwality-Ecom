@@ -1,25 +1,41 @@
-"use client";
+"use client"
+import { useParams } from 'next/navigation';  // Import the new hooks
 import Slider from "react-slick";
+import React, { useEffect, useState } from 'react';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useState } from "react";
-import "../../styles/globals.css";
-import { ProductList } from "@/components/productList";
-
+import "../../../styles/globals.css";
+import axios from 'axios';
 
 const ProductDetail = () => {
 
+  const { id } = useParams(); // Use the new useParams hook to get the product ID
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
   const [activeTab, setActiveTab] = useState("description"); // State for active tab
 
+  useEffect(() => {
+    if (id) {
+      // Fetch product details by ID from the backend
+      axios
+        .get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${id}`)
+        .then((response) => {
+          setProduct(response.data);
+          setLoading(false); // Set loading to false when data is fetched
+        })
+        .catch((error) => {
+          console.error("Error fetching product:", error);
+          setError("Error fetching product details.");
+          setLoading(false); // Stop loading in case of an error
+        });
+    }
+  }, [id]);
 
-  const product = {
-    id: "1",
-    name: "Chicken Breast - Boneless",
-    description:
-      "This special Licious Chicken Breast absorbs masalas better & is perfect for quick-cooking recipes. Expertly cut from the breast bone, this boneless cut is skinless and You may get a few.",
-    salePrice: "349.00",
-    regularPrice: "450.00",
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!product) return <div>No product found.</div>;
+
 
   const settings = {
     customPaging: function (i) {
@@ -44,7 +60,6 @@ const ProductDetail = () => {
 
   return (
     <>
-    <ProductList/>
     <div className="container mx-auto px-4 py-8 flex space-x-10">
       {/* Image Slider */}
       <div className="w-2/5">
@@ -83,10 +98,10 @@ const ProductDetail = () => {
           <p className="text-gray-700 mb-4">{product.description}</p>
           <div className="mb-6">
             <span className="text-gray-500 line-through mr-2">
-              ₹{product.regularPrice}
+              ₹{product.price}
             </span>
             <span className="text-xl font-semibold text-red-600">
-              ₹{product.salePrice}
+              ₹{product.price}
             </span>
           </div>
           <button
@@ -101,7 +116,6 @@ const ProductDetail = () => {
     </div>
 
     <div className="container my-4 flex justify-center w-9/12">
-            {/* Tabs Section */}
             <div className="shadow-lg rounded-lg p-5">
           <div className="flex space-x-4 justify-center">
             <button

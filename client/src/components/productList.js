@@ -1,8 +1,8 @@
-'use client'; // Use this to ensure client-side features work in Next.js
-
+'use client'; 
+import Link from 'next/link';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from '../store/slices/productslice'; // Update the path
+import { fetchProducts } from'../store/slices/productSlice'; 
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -64,9 +64,11 @@ export const ProductList = () => {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="small" sx={{ color: 'green', backgroundColor: 'lightgreen', width: '200px' }}>
-                Order Now
-              </Button>
+            <Link href={`/products/${product._id}`} passHref>
+                <Button size="small" sx={{ color: 'green', backgroundColor: 'lightgreen' }}>
+                  Order Now
+                </Button>
+              </Link>
             </CardActions>
           </Card>
         ))}

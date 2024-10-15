@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Async thunk to fetch products from the backend
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products`); 
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products`); 
   return response.data;
 });
 
