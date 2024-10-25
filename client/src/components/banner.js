@@ -42,17 +42,15 @@ export const Banner = () => {
   };
 
   return (
-    <div className="container py-5">
+    <div className="">
       <Slider {...settings}>
         <div>
-          <img className="rounded-lg" src="/banner-bg.png" alt="Banner" style={{ background: '#d3ebc0' }} />
+          <img className="rounded-lg" src="/banner.jpg" alt="Banner" style={{ height: '500px', width:'100%'}} />
         </div>
         <div>
-          <img className="rounded-lg" src="/banner-bg.png" alt="Banner" style={{ background: '#d3ebc0' }} />
+          <img className="rounded-lg" src="/banner.jpg" alt="Banner" style={{ height: '500px', width:'100%'}} />
         </div>
-        <div>
-          <img className="rounded-lg" src="/banner-bg.png" alt="Banner" style={{ background: '#d3ebc0' }} />
-        </div>
+
       </Slider>
     </div>
   );

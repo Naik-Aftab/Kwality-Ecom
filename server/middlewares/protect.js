@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Customer = require('../models/Customer'); 
+const User = require('../models/User'); 
 
 const protect = async (req, res, next) => {
   let token;
@@ -15,9 +15,11 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // Use the Customer model instead of User model
-    req.customer = await Customer.findById(decoded.id).select('-password');
+    req.User = await User.findById(decoded.id);
+    console.log("customer",req.User);
+
     
-    if (!req.customer) {
+    if (!req.User) {
       return res.status(404).json({ message: 'Customer not found' });
     }
 

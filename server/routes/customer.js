@@ -1,11 +1,21 @@
 const express = require('express');
-const { getCustomers, getCustomerById, updateCustomer, deleteCustomer } = require('../controllers/customerController');
+const {
+  createCustomer,
+  getAllCustomers,
+  getCustomerById,
+  updateCustomer,
+  deleteCustomer
+} = require('../controllers/customerController'); // Importing the controller
+const protect = require('../middlewares/protect'); // Importing the protect middleware
+
 const router = express.Router();
 
-// Customer routes
-router.get('/', getCustomers);         // Get all customers
-router.get('/:id', getCustomerById);   // Get customer by ID
-router.put('/:id', updateCustomer);    // Update customer by ID
-router.delete('/:id', deleteCustomer); // Delete customer by ID
+// Routes for customer CRUD operations
+router.post('/', createCustomer);                // Create a new customer
+router.get('/', protect ,getAllCustomers);                // Get all customers
+router.get('/:id', protect, getCustomerById);             // Get a specific customer by ID
+router.put('/:id', protect, updateCustomer);              // Update a customer by ID
+router.delete('/:id', protect, deleteCustomer);           // Delete a customer by ID
+
 
 module.exports = router;

@@ -1,74 +1,121 @@
-const crypto = require('crypto');
-const sendEmail = require('../utils/sendMail');
-const Customer = require('../models/Customer');
-const jwt = require('jsonwebtoken');
+const crypto = require("crypto");
+const bcrypt = require('bcryptjs');
+const sendEmail = require("../utils/sendMail");
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
+let temporaryPasswords = {}; // Store temporary passwords in memory (use a DB in production)
 
-// @desc    Register a new customer
+// Generate random password function
+function generateRandomPassword() {
+  return crypto.randomBytes(8).toString('hex'); // Generate a 16-character random password
+}
+
+// @desc    Register a new User
 // @route   POST /api/auth/register
 exports.register = async (req, res) => {
-  const { name, email, password, phone, address } = req.body;
+  const { fullName, email } = req.body;
 
   try {
-    // Check if customer already exists
-    const existingCustomer = await Customer.findOne({ email });
-    if (existingCustomer) {
-      return res.status(400).json({ message: 'Customer already exists' });
+    // Check if User already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create a new customer
-    const customer = await Customer.create({
-      name, email, password, phone, address
+    // Generate random password
+    const randomPassword = generateRandomPassword();
+
+    // Temporarily store the password in memory
+    temporaryPasswords[email] = randomPassword;
+
+    // Prepare the email content
+    const message = `Dear ${fullName},\n\nHere is your temporary password: ${randomPassword}\nfor this ${email}\nPlease use this password to complete your registration.\n\nRegards,\nKwality Ecom Team`;
+
+    // Send password via email
+    await sendEmail({
+      email: process.env.Admin_Email_Id,
+      subject: `Password for ${fullName}`,
+      message: message,
     });
 
-    console.log('Customer registered:', customer);
-
-    // Generate JWT token
-    const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d'
-    });
-
-    res.status(201).json({
-      _id: customer._id,
-      name: customer.name,
-      email: customer.email,
-      token
-    });
+    res.status(201).json({ message: 'Password sent to your email. Please enter it to complete registration.' });
   } catch (error) {
-    console.error('Error registering customer:', error.message);
+    console.error('Error during registration:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Authenticate a customer & get token
+
+// Complete registration by checking password
+exports.completeRegistration = async (req, res) => {
+  const { fullName, email, password } = req.body;
+
+  try {
+    // Check if the password matches the temporary password
+    const storedPassword = temporaryPasswords[email];
+    if (!storedPassword || storedPassword !== password) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Create a new User
+    const newUser = await User.create({
+      fullName,
+      email,
+      password, // You may want to hash this in real use cases
+    });
+
+    console.log('User registered:', newUser);
+
+    // Clear the temporary password
+    delete temporaryPasswords[email];
+
+    // Generate JWT token
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    res.status(201).json({
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      email: process.env.Admin_Email_Id,
+      token,
+    });
+  } catch (error) {
+    console.error('Error completing registration:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Authenticate a User & get token
 // @route   POST /api/auth/login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find customer by email
-    const customer = await Customer.findOne({ email });
+    // Find User by email
+    const user = await User.findOne({ email });
 
-    if (!customer || !(await customer.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    console.log('Customer logged in:', customer);
+    console.log("User logged in:", user);
 
     // Generate JWT token
-    const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d'
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
     });
 
-    res.status(200).json({
-      _id: customer._id,
-      name: customer.name,
-      email: customer.email,
-      token
+    res.status(200).json({   
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      token,
     });
   } catch (error) {
-    console.error('Error logging in customer:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error logging in User:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -78,75 +125,69 @@ exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Check if customer exists
-    const customer = await Customer.findOne({ email });
-    if (!customer) {
-      return res.status(404).json({ message: 'Customer not found' });
+    // Check if User exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Generate reset token
-    const resetToken = customer.getResetPasswordToken();
-    await customer.save(); // Save the customer with reset token and expiry
+     // Generate a random password
+     const randomPassword = generateRandomPassword();
+     user.password = randomPassword; // Hash the random password
+     await user.save(); // Save the User with the new password
 
-    // Create reset URL
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
+   // Email message
+    const message = `Your new temporary password is: ${randomPassword} \n For Email Id: ${email}
+    \n\nPlease log in with this password and change it immediately after logging in.`;
 
-    // Email message
-    const message = `You are receiving this email because you (or someone else) has requested a password reset. 
-    Please click on the link below to reset your password:
-    \n\n${resetUrl}
-    \n\nIf you did not request this, please ignore this email.`;
-
-    // Send email with the reset URL
+    // Send email with the random password
     try {
       await sendEmail({
-        email: customer.email,
-        subject: 'Password Reset',
-        message
+        email: process.env.Admin_Email_Id,
+        subject: "Password Reset",
+        message,
       });
 
-      res.status(200).json({ message: 'Reset email sent' });
-    } catch (error) {
-      console.error('Email could not be sent:', error);
-      customer.resetPasswordToken = undefined;
-      customer.resetPasswordExpire = undefined;
-      await customer.save(); // Reset token and expiration fields
+      res.status(200).json({ message: "Temporary password sent to your email." });
 
-      res.status(500).json({ message: 'Email could not be sent' });
+    } catch (error) {
+      console.error("Email could not be sent:", error);
+      user.password = undefined; // Reset the password in case of email failure
+      await user.save(); // Reset password field
+
+      res.status(500).json({ message: "Email could not be sent" });
     }
   } catch (error) {
-    console.error('Error in forgot password:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error in forgot password:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // @desc    Reset password
-// @route   PUT /api/auth/reset-password/:resetToken
+// @route   PUT /api/auth/reset-password/
 exports.resetPassword = async (req, res) => {
-  // Hash the reset token provided in the URL
-  const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
+  const { email, tempPassword, newPassword } = req.body;
 
   try {
-    // Find customer by the token and check if it's still valid
-    const customer = await Customer.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() } // Token has not expired
-    });
-
-    if (!customer) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Set the new password
-    customer.password = req.body.password;
-    customer.resetPasswordToken = undefined;
-    customer.resetPasswordExpire = undefined;
+   // Match the temporary password
+   const isMatch = await user.matchPassword(tempPassword);
+   if (!isMatch) {
+     return res.status(400).json({ message: "Invalid temporary password" });
+   }
 
-    await customer.save();
+    // Update the password and hash it
+    user.password = newPassword;
+    await user.save(); // Bypass the pre-save hook
 
-    res.status(200).json({ message: 'Password has been updated' });
+    res.status(200).json({ message: "Password has been reset successfully." });
   } catch (error) {
-    console.error('Error resetting password:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Error resetting password." });
   }
 };

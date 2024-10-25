@@ -1,11 +1,12 @@
 const express = require('express');
-const { createOrder, getOrders, getOrderById, updateOrder, deleteOrder } = require('../controllers/orderController');
+const { createOrder, getAllOrders, getOrderById, updateOrder, deleteOrder } = require('../controllers/orderController');
+const protect = require('../middlewares/protect'); 
 const router = express.Router();
 
 router.post('/', createOrder); // Create order
-router.get('/', getOrders);    // Get all orders
-router.get('/:id', getOrderById);  // Get order by ID
-router.put('/:id', updateOrder);   // Update order by ID
-router.delete('/:id', deleteOrder);  // Delete order by ID
+router.get('/', protect, getAllOrders);    // Get all orders
+router.get('/:id', protect, getOrderById);  // Get order by ID
+router.put('/:id', protect, updateOrder);   // Update order by ID
+router.delete('/:id', protect, deleteOrder);  // Delete order by ID
 
 module.exports = router;

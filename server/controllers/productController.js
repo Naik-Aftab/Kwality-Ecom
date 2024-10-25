@@ -1,11 +1,24 @@
 const Product = require('../models/Product');
 
-// @desc    Create new product
+/// @desc    Create new product
 // @route   POST /api/products
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, category, stock } = req.body;
-    const newProduct = new Product({ name, price, description, category, stock });
+    const { name, regularPrice, salePrice, description, category, stock } = req.body;
+    // Collect image file paths
+    const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+
+    // Create new product with regular price and optional sale price
+    const newProduct = new Product({
+      name,
+      regularPrice,
+      salePrice, // If provided
+      description,
+      category,
+      stock,
+      images: imagePaths, // Store image paths
+    });
+
     await newProduct.save();
     console.log('Product created:', newProduct);
     res.status(201).json(newProduct);
@@ -13,7 +26,7 @@ exports.createProduct = async (req, res) => {
     console.error('Error creating product:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
-}; 
+};
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -48,15 +61,42 @@ exports.getProductById = async (req, res) => {
 // @route   PUT /api/products/:id
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const productId = req.params.id;
+    const { name, description, regularPrice, salePrice, category, stock } = req.body;
+
+    console.log("================================",req.body);
+
+    // Check if product exists
+    let product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
-    console.log(`Updated product with ID: ${req.params.id}`);
-    res.status(200).json(product);
+
+    console.log("================================",product.name);
+
+
+    // Update product details
+    if (req.files && req.files.length > 0) {
+      // If new images are uploaded, replace the old ones
+      const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+      product.images = imagePaths;
+    }
+
+
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.regularPrice = regularPrice || product.regularPrice;
+    product.salePrice = salePrice || product.salePrice;
+    product.category = category || product.category;
+    product.stock = stock || product.stock;
+
+    // Save updated product
+    await product.save();
+
+    res.status(200).json({ message: "Product updated successfully", product });
   } catch (error) {
-    console.error('Error updating product:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating product:", error);
+    res.status(500).json({ error: "Failed to update product", details: error });
   }
 };
 
