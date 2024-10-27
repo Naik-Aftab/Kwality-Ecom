@@ -13,7 +13,7 @@ const Footer = () => {
               About Us
             </Typography>
             <Typography variant="body2" className="text-gray-400">
-              We are a leading eCommerce platform providing a wide range of products at unbeatable prices. Join us on our journey to deliver quality and convenience to your doorstep.
+              We are a leading Chiken Seller platform providing a wide range of products at unbeatable prices. Join us on our journey to deliver quality and convenience to your doorstep.
             </Typography>
           </Grid>
           

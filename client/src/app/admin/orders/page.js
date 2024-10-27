@@ -4,8 +4,10 @@ import axios from 'axios';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, CircularProgress, Pagination } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import OrderDetailModal from './OrderDetailModal'; // Modal for order details
+import useAuth from '../withauth';
 
 export default function OrdersPage() {
+  useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -57,11 +59,18 @@ export default function OrdersPage() {
 const updateOrderStatus = async (id, newStatus) => {
   try {
     const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders/${id}`, {
-      status: newStatus,
-      headers: { Authorization: `Bearer ${token}`, },
-    });
+      status: newStatus,      
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    }
+  );
+  
+  setOpen(false);
+  fetchOrders();
     // console.log('Order status updated:', response.data);
-    // Optionally, you might want to refresh the orders list or do something after updating
   } catch (error) {
     console.error('Error updating order status:', error.response.data.message);
     alert('Failed to update order status.');

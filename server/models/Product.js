@@ -5,6 +5,11 @@ const productSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  weight: {
+    grams: { type: String, required: false },  
+    pieces: { type: String, required: false },  
+    serves: { type: String, required: false }, 
+  },
   description: { 
     type: String, 
     required: true 

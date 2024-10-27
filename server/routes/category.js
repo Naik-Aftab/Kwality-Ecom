@@ -19,5 +19,5 @@ router.get('/', getAllCategories);            // Get all categories
 router.get('/:id', getCategoryById);          // Get a specific category by ID
 router.put("/:id", protect, upload.single("image"), updateCategory); //updating a category (with image upload)
 router.delete('/:id', protect, deleteCategory);        // Delete a category by ID
-router.get('/:id/products', getAllProductsByCategory); // Get all products
+router.get('/:categoryId/products', getAllProductsByCategory); // Get all products
 module.exports = router;

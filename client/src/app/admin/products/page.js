@@ -19,7 +19,6 @@ import {
   MenuItem,
   FormControl,
   Select,
-  InputLabel,
   TextField,
   Grid,
   CircularProgress,
@@ -27,14 +26,17 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
+import useAuth from '../withauth';
+
 
 export default function AdminProductList() {
+  useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([]); // State to hold uploaded images
+  const [images, setImages] = useState([]);
 
   const token = localStorage.getItem('token');
 
@@ -44,9 +46,7 @@ export default function AdminProductList() {
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/products`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setProducts(res.data);
@@ -62,9 +62,7 @@ export default function AdminProductList() {
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/categories`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setCategories(res.data);
@@ -80,8 +78,11 @@ export default function AdminProductList() {
 
   // Open modal with selected product details
   const handleOpen = (product) => {
-    setSelectedProduct(product);
-    setImages([]); // Reset images when opening the modal
+    setSelectedProduct({
+      ...product,
+      weight: product.weight || { grams: "", pieces: "", serves: "" },
+    });
+    setImages([]);
     setOpen(true);
   };
 
@@ -89,7 +90,7 @@ export default function AdminProductList() {
   const handleClose = () => {
     setOpen(false);
     setSelectedProduct(null);
-    setImages([]); // Reset images on close
+    setImages([]);
   };
 
   // Update product details in modal
@@ -101,8 +102,11 @@ export default function AdminProductList() {
     formData.append("salePrice", selectedProduct.salePrice);
     formData.append("category", selectedProduct.category._id);
     formData.append("stock", selectedProduct.stock);
-    
-    // Append image files if they exist
+
+    formData.append("weight[grams]", selectedProduct.weight.grams || "");
+    formData.append("weight[pieces]", selectedProduct.weight.pieces || "");
+    formData.append("weight[serves]", selectedProduct.weight.serves || "");
+
     images.forEach((image) => {
       formData.append("images", image);
     });
@@ -114,8 +118,8 @@ export default function AdminProductList() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-             Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
-          },           
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       fetchProducts();
@@ -128,12 +132,23 @@ export default function AdminProductList() {
   // Handle changes in the product modal inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSelectedProduct({ ...selectedProduct, [name]: value });
+
+    if (name === "grams" || name === "pieces" || name === "serves") {
+      setSelectedProduct((prevProduct) => ({
+        ...prevProduct,
+        weight: {
+          ...prevProduct.weight,
+          [name]: value,
+        },
+      }));
+    } else {
+      setSelectedProduct({ ...selectedProduct, [name]: value });
+    }
   };
 
   // Handle image uploads
   const handleImageChange = (e) => {
-    setImages([...e.target.files]); // Store selected files
+    setImages([...e.target.files]);
   };
 
   // Delete product
@@ -145,11 +160,8 @@ export default function AdminProductList() {
       try {
         await axios.delete(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
-        },
-      }
-        );
+          headers: { Authorization: `Bearer ${token}` },
+        });
         fetchProducts();
       } catch (err) {
         console.error("Error deleting product:", err);
@@ -167,7 +179,10 @@ export default function AdminProductList() {
     formData.append("category", selectedProduct.category._id);
     formData.append("stock", selectedProduct.stock);
 
-    // Append image files if they exist
+    formData.append("weight[grams]", selectedProduct.weight.grams || "");
+    formData.append("weight[pieces]", selectedProduct.weight.pieces || "");
+    formData.append("weight[serves]", selectedProduct.weight.serves || "");
+
     images.forEach((image) => {
       formData.append("images", image);
     });
@@ -179,7 +194,7 @@ export default function AdminProductList() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-             Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -196,43 +211,28 @@ export default function AdminProductList() {
         <Typography variant="h4" gutterBottom>
           Products List
         </Typography>
-
-        {/* Add Product Button */}
         <Button
           variant="contained"
           color="primary"
           onClick={() => {
-            setSelectedProduct({}); // Reset selected product for adding a new product
-            setOpen(true); // Open the modal
+            setSelectedProduct({});
+            setOpen(true);
           }}
         >
           Add Product
         </Button>
       </Box>
 
-      {/* Product Table */}
       <TableContainer component={Paper} elevation={3}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
-                <strong>Product Name</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Category</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Image</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Regular Price</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Sale Price</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Actions</strong>
-              </TableCell>
+              <TableCell><strong>Product Name</strong></TableCell>
+              <TableCell><strong>Category</strong></TableCell>
+              <TableCell><strong>Image</strong></TableCell>
+              <TableCell><strong>Regular Price</strong></TableCell>
+              <TableCell><strong>Sale Price</strong></TableCell>
+              <TableCell><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -284,9 +284,7 @@ export default function AdminProductList() {
       {/* Product Modal */}
       {selectedProduct && (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-          <DialogTitle>
-            {selectedProduct._id ? "Edit Product" : "Add Product"}
-          </DialogTitle>
+          <DialogTitle>{selectedProduct._id ? "Edit Product" : "Add Product"}</DialogTitle>
           <DialogContent>
             <Box my={2}>
               <TextField
@@ -297,39 +295,76 @@ export default function AdminProductList() {
                 onChange={handleInputChange}
                 margin="normal"
               />
+
+              <Box display="flex" gap={2} mb={2}>
+                <TextField
+                  label="Weight (grams)"
+                  fullWidth
+                  name="grams"
+                  value={selectedProduct.weight.grams || ""}
+                  onChange={handleInputChange}
+                  margin="normal"
+                />
+                <TextField
+                  label="Pieces"
+                  fullWidth
+                  name="pieces"
+                  value={selectedProduct.weight.pieces || ""}
+                  onChange={handleInputChange}
+                  margin="normal"
+                />
+                <TextField
+                  label="serves"
+                  fullWidth
+                  name="serves"
+                  value={selectedProduct.weight.serves || ""}
+                  onChange={handleInputChange}
+                  margin="normal"
+                />
+              </Box>
+
               <TextField
                 label="Description"
                 fullWidth
+                multiline
+                rows={4}
                 name="description"
                 value={selectedProduct.description || ""}
                 onChange={handleInputChange}
                 margin="normal"
               />
+
+              <TextField
+                label="Regular Price"
+                fullWidth
+                name="regularPrice"
+                type="number"
+                value={selectedProduct.regularPrice || ""}
+                onChange={handleInputChange}
+                margin="normal"
+              />
+              <TextField
+                label="Sale Price"
+                fullWidth
+                name="salePrice"
+                type="number"
+                value={selectedProduct.salePrice || ""}
+                onChange={handleInputChange}
+                margin="normal"
+              />
+
               <FormControl fullWidth margin="normal">
                 <Select
-                  labelId="category-select-label"
-                  name="category"
-                  value={
-                    selectedProduct.category ? selectedProduct.category._id : ""
-                  }
+                  value={selectedProduct.category?._id || ""}
                   onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct,
+                    setSelectedProduct((prev) => ({
+                      ...prev,
                       category: categories.find(
-                        (cat) => cat._id === e.target.value
+                        (category) => category._id === e.target.value
                       ),
-                    })
+                    }))
                   }
-                  displayEmpty
-                  sx={{
-                    "& .MuiSelect-select": {
-                      padding: "16.5px 14px", // Adjust padding if necessary to prevent overlap
-                    },
-                  }}
                 >
-                  <MenuItem value="">
-                    <em>Select a category</em>
-                  </MenuItem>
                   {categories.map((category) => (
                     <MenuItem key={category._id} value={category._id}>
                       {category.name}
@@ -338,63 +373,23 @@ export default function AdminProductList() {
                 </Select>
               </FormControl>
 
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Regular Price"
-                    fullWidth
-                    name="regularPrice"
-                    value={selectedProduct.regularPrice || ""}
-                    onChange={handleInputChange}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Sale Price"
-                    fullWidth
-                    name="salePrice"
-                    value={selectedProduct.salePrice || ""}
-                    onChange={handleInputChange}
-                    margin="normal"
-                  />
-                </Grid>
-              </Grid>
-
               <TextField
                 label="Stock"
                 fullWidth
                 name="stock"
+                type="number"
                 value={selectedProduct.stock || ""}
                 onChange={handleInputChange}
                 margin="normal"
               />
 
               <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="product-images-upload"
                 type="file"
+                accept="image/*"
                 multiple
                 onChange={handleImageChange}
+                style={{ marginTop: "1rem" }}
               />
-              <label htmlFor="product-images-upload">
-                <Button variant="contained" color="primary" component="span">
-                  Upload Images
-                </Button>
-              </label>
-
-              {/* Display selected image names */}
-              {images.length > 0 && (
-                <Box mt={2}>
-                  <Typography>Selected Images:</Typography>
-                  <ul>
-                    {images.map((image, index) => (
-                      <li key={index}>{image.name}</li>
-                    ))}
-                  </ul>
-                </Box>
-              )}
             </Box>
           </DialogContent>
           <DialogActions>
@@ -404,7 +399,6 @@ export default function AdminProductList() {
             <Button
               onClick={selectedProduct._id ? handleProductUpdate : handleAddProduct}
               color="primary"
-              variant="contained"
             >
               {selectedProduct._id ? "Update Product" : "Add Product"}
             </Button>

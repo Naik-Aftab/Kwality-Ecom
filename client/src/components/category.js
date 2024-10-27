@@ -45,13 +45,12 @@ export const Category = () => {
     <div className="flex flex-wrap justify-center p-4">
       {categories.map((category) => (
          <Link key={category.id} href={`/categories/${category._id}`} passHref>
-        <div
-          key={category._id}
-          className="max-w-sm mx-4 mb-8 p-4 shadow-lg rounded-lg transition-transform transform hover:scale-105" // Increased mx-4 and mb-8
+        <div key={category._id}
+          className="max-w-sm mx-4 mb-8 p-4 shadow-lg rounded-lg transition-transform transform hover:scale-105" 
         >
           <div className="flex justify-center mb-2">
             <img
-              src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${category.image}`} // Assuming your API returns an image URL
+              src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${category.image}`} 
               alt={category.name}
               className="h-32 w-32 object-cover rounded-full"
             />

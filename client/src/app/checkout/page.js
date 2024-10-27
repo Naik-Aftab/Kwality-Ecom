@@ -5,13 +5,15 @@ import axios from "axios";
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { clearCart } from '@/store/slices/cartSlice'; 
-
-
+import { TextField, Button, CircularProgress } from '@mui/material';
+import Link from 'next/link';
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 const Checkout = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -35,7 +37,6 @@ const Checkout = () => {
     zip: '',
   });
   const [paymentMethod, setPaymentMethod] = useState('cashOnDelivery'); // Default payment method
-  const [loading, setLoading] = useState(false);
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
@@ -47,41 +48,41 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const customerData = {
       fullName,
       email,
       phone,
-      shippingAddress, // Include the shipping address as an object
+      shippingAddress,
     };
 
     setLoading(true);
     try {
-      // Save customer details first
       const customerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`, customerData);
-      console.log("Customer Response:",customerResponse.data.customer._id);
-      const customerId = customerResponse.data.customer._id; // Assuming your API returns the customer's ID
+      const customerId = customerResponse.data.customer._id;
 
       const orderData = {
-        customer: customerId, // Change to 'customer'
+        customer: customerId,
         products: cartItems.map(item => ({
-          product: item.id, // Assuming item.id is the product ID
+          product: item.id,
           quantity: item.quantity
         })),
         totalQuantity,
         totalAmount: totalAmount + shippingCost,
-        shippingCharge: shippingCost, // Make sure you match the field name
+        shippingCharge: shippingCost,
         paymentMethod,
       };
 
-      // Place the order
       await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`, orderData);
-      alert('Order placed successfully!');
-       
-      dispatch(clearCart()); // Clear the cart
+      
+      // SweetAlert confirmation
+      await Swal.fire({
+        title: 'Order Placed!',
+        text: 'Your order has been placed successfully!',
+        icon: 'success'
+      });
 
+      dispatch(clearCart()); 
       router.push('/thankyou');
-      // Optionally, redirect or clear cart here
     } catch (error) {
       console.error('Error placing order:', error);
       alert('An error occurred while placing the order. Please try again.');
@@ -102,54 +103,101 @@ const Checkout = () => {
         {/* Left Column - Shipping Information */}
         <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
           <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="fullName">Full Name</label>
-              <input type="text" id="fullName" className="w-full p-3 border rounded-lg" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <CircularProgress />
+              <span className="ml-2">Placing order...</span>
             </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
-              <input type="email" id="email" className="w-full p-3 border rounded-lg" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="phone">Phone</label>
-              <input type="text" id="phone" className="w-full p-3 border rounded-lg" placeholder="1234567890" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <TextField 
+                label="Full Name" 
+                variant="outlined" 
+                fullWidth 
+                className="mb-4" 
+                value={fullName} 
+                onChange={(e) => setFullName(e.target.value)} 
+                required 
+              />
+              <TextField 
+                label="Email" 
+                type="email" 
+                variant="outlined" 
+                fullWidth 
+                className="mb-4" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+              <TextField 
+                label="Phone" 
+                variant="outlined" 
+                fullWidth 
+                className="mb-4" 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)} 
+                required 
+              />
 
-            {/* Shipping Address Fields */}
-            <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="street">Street</label>
-              <input type="text" name="street" className="w-full p-3 border rounded-lg" placeholder="123 Main St" value={shippingAddress.street} onChange={handleAddressChange} required />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="city">City</label>
-              <input type="text" name="city" className="w-full p-3 border rounded-lg" placeholder="City" value={shippingAddress.city} onChange={handleAddressChange} required />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="state">State</label>
-              <input type="text" name="state" className="w-full p-3 border rounded-lg" placeholder="State" value={shippingAddress.state} onChange={handleAddressChange} required />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2" htmlFor="zip">Zip</label>
-              <input type="text" name="zip" className="w-full p-3 border rounded-lg" placeholder="Pincode" value={shippingAddress.zip} onChange={handleAddressChange} required />
-            </div>
+              {/* Shipping Address Fields */}
+              <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
+              <TextField 
+                label="Address" 
+                name="street" 
+                variant="outlined" 
+                fullWidth 
+                className="mb-4" 
+                value={shippingAddress.street} 
+                onChange={handleAddressChange} 
+                required 
+              />
+              <div className="flex space-x-4 mb-4">
+                <TextField 
+                  label="City" 
+                  name="city" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={shippingAddress.city} 
+                  onChange={handleAddressChange} 
+                  required 
+                />
+                <TextField 
+                  label="State" 
+                  name="state" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={shippingAddress.state} 
+                  onChange={handleAddressChange} 
+                  required 
+                />
+              </div>
+              <TextField 
+                label="Pin Code" 
+                name="zip" 
+                variant="outlined" 
+                fullWidth 
+                className="mb-4" 
+                value={shippingAddress.zip} 
+                onChange={handleAddressChange} 
+                required 
+              />
 
-            <fieldset className="mb-4">
-              <legend className="block text-gray-700 mb-2">Payment Method</legend>
-              <div className="flex items-center mb-2">
-                <input type="radio" id="cashOnDelivery" name="paymentMethod" value="cashOnDelivery" checked={paymentMethod === 'cashOnDelivery'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                <label htmlFor="cashOnDelivery" className="ml-2">Cash on Delivery</label>
-              </div>
-              <div className="flex items-center mb-2">
-                <input type="radio" id="onlinePayment" name="paymentMethod" value="onlinePayment" checked={paymentMethod === 'onlinePayment'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                <label htmlFor="onlinePayment" className="ml-2">Online Payment</label>
-              </div>
-            </fieldset>
-            <button type="submit" className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-              {loading ? 'Placing Order...' : 'Place Order'}
-            </button>
-          </form>
+              <fieldset className="mb-4">
+                <legend className="block text-gray-700 mb-2">Payment Method</legend>
+                <div className="flex items-center mb-2">
+                  <input type="radio" id="cashOnDelivery" name="paymentMethod" value="cashOnDelivery" checked={paymentMethod === 'cashOnDelivery'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                  <label htmlFor="cashOnDelivery" className="ml-2">Cash on Delivery</label>
+                </div>
+                <div className="flex items-center mb-2">
+                  <input type="radio" id="onlinePayment" name="paymentMethod" value="onlinePayment" checked={paymentMethod === 'onlinePayment'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                  <label htmlFor="onlinePayment" className="ml-2">Online Payment</label>
+                </div>
+              </fieldset>
+              <Button type="submit" variant="contained" color="primary" fullWidth className={loading ? 'opacity-50 cursor-not-allowed' : ''} disabled={loading}>
+                {loading ? 'Placing Order...' : 'Place Order'}
+              </Button>
+            </form>
+          )}
         </div>
 
         {/* Right Column - Order Summary */}
@@ -169,9 +217,14 @@ const Checkout = () => {
                     </div>
                   </div>
                   <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
-                </div>
+                </div>                
               ))}
-
+              {/* Button to Modify Cart */}
+              <Link href="/cart" passHref>
+                <Button variant="outlined" color="secondary" className="mt-4">
+                  Modify Cart
+                </Button>
+              </Link>
               {/* Total Price */}
               <div className="border-t mt-4 pt-4">
                 <div className="flex justify-between mb-2">
@@ -182,14 +235,14 @@ const Checkout = () => {
                   <p>Delivery Charges:</p>
                   <p>₹{shippingCost.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between font-semibold">
+                <div className="flex justify-between font-bold">
                   <p>Total Amount:</p>
                   <p>₹{(totalAmount + shippingCost).toFixed(2)}</p>
                 </div>
               </div>
             </>
           ) : (
-            <p className="text-gray-500">Your cart is empty.</p>
+            <p>No items in the cart.</p>
           )}
         </div>
       </div>

@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // @route   POST /api/products
 exports.createProduct = async (req, res) => {
   try {
-    const { name, regularPrice, salePrice, description, category, stock } = req.body;
+    const { name, regularPrice, salePrice, description, category, stock, weight } = req.body;
     // Collect image file paths
     const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
 
@@ -12,11 +12,16 @@ exports.createProduct = async (req, res) => {
     const newProduct = new Product({
       name,
       regularPrice,
-      salePrice, // If provided
+      salePrice, 
       description,
       category,
       stock,
       images: imagePaths, // Store image paths
+      weight: {
+        grams: weight?.grams || "", 
+        pieces: weight?.pieces || "", 
+        serves: weight?.serves || ""
+      }
     });
 
     await newProduct.save();
@@ -32,8 +37,19 @@ exports.createProduct = async (req, res) => {
 // @route   GET /api/products
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('category');
-    console.log('Fetched all products');
+    const { search } = req.query;
+    let filter = {};
+
+    if (search) {
+      filter = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+        ]
+      };
+    }
+
+    const products = await Product.find(filter);  // No populate here
+    console.log('Fetched products', search ? `with search term: ${search}` : 'all products');
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error.message);
@@ -57,23 +73,19 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+
 // @desc    Update product by ID
 // @route   PUT /api/products/:id
 exports.updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, regularPrice, salePrice, category, stock } = req.body;
-
-    console.log("================================",req.body);
-
+    const { name, description, regularPrice, salePrice, category, stock, weight } = req.body;
+  
     // Check if product exists
     let product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-
-    console.log("================================",product.name);
-
 
     // Update product details
     if (req.files && req.files.length > 0) {
@@ -82,13 +94,17 @@ exports.updateProduct = async (req, res) => {
       product.images = imagePaths;
     }
 
-
     product.name = name || product.name;
     product.description = description || product.description;
     product.regularPrice = regularPrice || product.regularPrice;
     product.salePrice = salePrice || product.salePrice;
     product.category = category || product.category;
     product.stock = stock || product.stock;
+    product.weight = {
+      grams: weight?.grams || product.weight?.grams || "",
+      pieces: weight?.pieces || product.weight?.pieces || "",
+      serves: weight?.serves || product.weight?.serves || ""
+    };
 
     // Save updated product
     await product.save();

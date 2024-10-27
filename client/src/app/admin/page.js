@@ -9,8 +9,11 @@ import {
 import { ArrowForwardIos, People, Inventory, ShoppingCart } from '@mui/icons-material';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { blue, green, red, purple } from '@mui/material/colors';
+import useAuth from '../admin/withauth';
 
 export default function AdminDashboard() {
+  useAuth();
+
   const [metrics, setMetrics] = useState({
     totalOrders: 0,
     totalProducts: 0,

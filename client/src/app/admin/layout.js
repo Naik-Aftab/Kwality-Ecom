@@ -1,9 +1,9 @@
-// admin/layout.js
 import Sidebar from '@/components/Sidebar';
 import { Box, CssBaseline } from '@mui/material';
 
 export default function AdminLayout({ children }) {
   return (
+    <>
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Sidebar />
@@ -14,5 +14,6 @@ export default function AdminLayout({ children }) {
         {children}
       </Box>
     </Box>
+    </>
   );
 }

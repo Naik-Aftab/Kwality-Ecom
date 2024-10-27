@@ -8,6 +8,10 @@ import "@/styles/globals.css";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
+import Header from "@/components/header";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Footer from "@/components/footer";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -15,9 +19,10 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
 
   const dispatch = useDispatch();
-
   const handleAddToCart = () => {
     const cartItem = {
       id: product._id,
@@ -28,8 +33,8 @@ const ProductDetail = () => {
     };
 
     dispatch(addToCart(cartItem));
-    alert("Product added to cart!");
-  };
+    setSnackbarOpen(true);
+    };
 
   useEffect(() => {
     if (id) {
@@ -47,12 +52,17 @@ const ProductDetail = () => {
     }
   }, [id]);
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-center">{error}</div>;
   if (!product) return <div className="text-center">No product found.</div>;
 
   return (
     <>
+    <Header/>
       <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row space-y-10 lg:space-y-0 lg:space-x-10">
         {/* Image Section */}
         <div className="w-full lg:w-1/2 flex justify-center items-center">
@@ -67,7 +77,15 @@ const ProductDetail = () => {
         <div className="w-full lg:w-3/5">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-            <p className="mb-3 text-gray-600">450 g | 2-4 Pieces | Serves 4</p>
+            <p className="mb-3 text-gray-600">
+                {[
+                  product.weight?.grams && `${product.weight.grams}`,
+                  product.weight?.pieces && `${product.weight.pieces}`,
+                  product.weight?.serves && ` ${product.weight.serves}`,
+                ]
+                  .filter(Boolean)
+                  .join(" | ")}
+              </p>
             <p className="text-gray-700 mb-4">{product.description}</p>
             <div className="mb-6 flex items-center">
               <span className="text-gray-500 line-through mr-2">
@@ -126,6 +144,18 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+       {/* Snackbar for product added to cart */}
+       <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          Product added to cart!
+        </Alert>
+      </Snackbar>
+      <Footer/>
     </>
   );
 };

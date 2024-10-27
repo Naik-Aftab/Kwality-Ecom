@@ -127,19 +127,19 @@ export default function OrderDetailModal({ order, open, onClose, onUpdateStatus 
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* {console.log("================================", order)} */}
+                {console.log("================================", order)}
                 {order.products.map((item) => (
                   <TableRow key={item.product._id}>
                     <TableCell>{item.product.name}</TableCell>
-                    <TableCell align="right">₹ {item.product.price}</TableCell>
+                    <TableCell align="right">₹ {item.product.salePrice}</TableCell>
                     <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">₹ {item.product.price * item.quantity}</TableCell>
+                    <TableCell align="right">₹ {item.product.salePrice * item.quantity}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
+        </Box> 
 
         {/* Summary */}
         <Box mt={2} mb={4}>
