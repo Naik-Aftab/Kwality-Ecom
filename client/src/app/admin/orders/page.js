@@ -15,14 +15,21 @@ export default function OrdersPage() {
   const [limit] = useState(10);  // Orders per page
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [open, setOpen] = useState(false);
-
-  const token = localStorage.getItem('token');
+  const [token, setToken] = useState(null); // State for token
 
   useEffect(() => {
-    fetchOrders();
-  }, [page]); // Only fetch orders based on page
+    const storedToken = localStorage.getItem('token'); // Accessing token on the client side
+    setToken(storedToken);
+  }, []);
 
-  const fetchOrders = async () => {
+  useEffect(() => {
+    if (token) {
+      fetchOrders();
+    }
+  }, [token, page]); // Fetch orders only if token is available and page changes
+
+
+   const fetchOrders = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`, {

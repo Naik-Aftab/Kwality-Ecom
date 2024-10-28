@@ -4,7 +4,7 @@ const path = require("path");
 // Set storage engine for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Path to save uploaded images
+    cb(null, 'public/uploads'); // Path to save uploaded images
   },
   filename: function (req, file, cb) {
     // Use the original file name with a timestamp to avoid name collisions

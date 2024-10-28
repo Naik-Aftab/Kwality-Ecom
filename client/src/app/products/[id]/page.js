@@ -1,10 +1,8 @@
 "use client";
 import { useParams } from "next/navigation"; 
-import Slider from "react-slick";
 import React, { useEffect, useState } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "@/styles/globals.css";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";

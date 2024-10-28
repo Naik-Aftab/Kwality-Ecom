@@ -29,6 +29,7 @@ import axios from "axios";
 import useAuth from '../withauth';
 
 
+
 export default function AdminProductList() {
   useAuth();
   const [products, setProducts] = useState([]);
@@ -37,8 +38,19 @@ export default function AdminProductList() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
+  const [token, setToken] = useState(null);
 
-  const token = localStorage.getItem('token');
+  useEffect(() => {
+    // Fetch token from localStorage and set it in the state
+    const storedToken = localStorage.getItem('token');
+    setToken(storedToken);
+
+    // Fetch products and categories if token is available
+    if (token) {
+      fetchProducts();
+      fetchCategories();
+    }
+  }, []);
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -70,11 +82,6 @@ export default function AdminProductList() {
       console.error("Error fetching categories:", err);
     }
   };
-
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
 
   // Open modal with selected product details
   const handleOpen = (product) => {

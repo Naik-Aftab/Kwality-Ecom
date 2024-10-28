@@ -34,7 +34,19 @@ export default function AdminCustomerList() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10; // Set the limit to 10 rows per page
+  const [token, setToken] = useState(null);
+  const limit = 10;
+
+  useEffect(() => {
+    // Fetch token from localStorage and set it in the state
+    const storedToken = localStorage.getItem('token');
+    setToken(storedToken);
+
+    // Fetch products and categories if token is available
+    if (token) {
+      fetchCustomers();
+    }
+  }, []);
 
   // Fetch customers from API
   const fetchCustomers = async () => {
@@ -55,9 +67,6 @@ export default function AdminCustomerList() {
     }
   };
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
 
     // Handle page change
     const handlePageChange = (event, value) => {
