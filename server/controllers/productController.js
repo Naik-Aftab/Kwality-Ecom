@@ -48,7 +48,7 @@ exports.getProducts = async (req, res) => {
       };
     }
 
-    const products = await Product.find(filter);  // No populate here
+    const products = await Product.find(filter).populate('category');  // No populate here
     console.log('Fetched products', search ? `with search term: ${search}` : 'all products');
     res.status(200).json(products);
   } catch (error) {

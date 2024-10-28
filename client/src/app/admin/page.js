@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                 Total Revenue
               </Typography>
               <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="h4" component="div">Rs.{metrics.totalRevenue}</Typography>
+                <Typography variant="h4" component="div">Rs.{new Intl.NumberFormat('en-IN').format(metrics.totalRevenue)}</Typography>
                 <CurrencyRupeeIcon fontSize="large" />
               </Box>
             </CardContent>
