@@ -29,8 +29,8 @@ app.use("/uploads", express.static("public/uploads"));
 
 // Routes
 app.use('/auth', authRoutes);           // Auth routes
-app.use('/api/categories', categoryRoutes); // Category routes
-app.use('/api/products', productRoutes);    // Product routes
+app.use('/categories', categoryRoutes); // Category routes
+app.use('/products', productRoutes);    // Product routes
 app.use('/orders', orderRoutes);        // Order routes
 app.use('/customers', customerRoutes);  // Customers
 app.use('/metrics', metricsRoutes);     // Metrics routes
