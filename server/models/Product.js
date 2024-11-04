@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema({
   },
   salePrice: { 
     type: Number, 
-    required: false // Not required; if not provided, the product is not on sale
+    required: false
   },
   category: { 
     type: mongoose.Schema.Types.ObjectId, 
