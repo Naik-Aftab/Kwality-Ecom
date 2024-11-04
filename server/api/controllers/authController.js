@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
-const sendEmail = require("../utils/sendMail");
-const User = require("../models/User");
+const sendEmail = require("../../utils/sendMail");
+const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 
 let temporaryPasswords = {}; // Store temporary passwords in memory (use a DB in production)

@@ -1,5 +1,5 @@
 const express = require('express');
-const upload = require("../middlewares/upload"); // Import multer setup
+const upload = require("../../middlewares/upload"); // Import multer setup
 const {
   createCategory,
   getAllCategories, // Use consistent function names
@@ -8,7 +8,7 @@ const {
   deleteCategory,
   getAllProductsByCategory,
 } = require('../controllers/categoryController');
-const protect = require('../middlewares/protect'); // Importing the protect middleware
+const protect = require('../../middlewares/protect'); // Importing the protect middleware
 
 
 const router = express.Router();

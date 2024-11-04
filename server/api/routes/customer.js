@@ -6,7 +6,7 @@ const {
   updateCustomer,
   deleteCustomer
 } = require('../controllers/customerController'); // Importing the controller
-const protect = require('../middlewares/protect'); // Importing the protect middleware
+const protect = require('../../middlewares/protect'); // Importing the protect middleware
 
 const router = express.Router();
 

@@ -4,13 +4,13 @@ const connectDB = require('../config/db');
 const cors = require('cors');
 
 // Import routes
-const authRoutes = require('../routes/auth');
-const categoryRoutes = require('../routes/category');
-const productRoutes = require('../routes/product');
-const orderRoutes = require('../routes/order');
-const customerRoutes = require('../routes/customer');
-const metricsRoutes = require('../routes/metrics');
-const porterRoutes = require('../routes/porter'); 
+const authRoutes = require('./routes/auth');
+const categoryRoutes = require('./routes/category');
+const productRoutes = require('./routes/product');
+const orderRoutes = require('./routes/order');
+const customerRoutes = require('./routes/customer');
+const metricsRoutes = require('./routes/metrics');
+const porterRoutes = require('./routes/porter'); 
 const loggerMiddleware = require('../middlewares/logger');
 
 dotenv.config();

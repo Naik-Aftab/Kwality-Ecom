@@ -1,6 +1,6 @@
 const express = require('express');
 const { createOrder, getAllOrders, getOrderById, updateOrder, deleteOrder } = require('../controllers/orderController');
-const protect = require('../middlewares/protect'); 
+const protect = require('../../middlewares/protect'); 
 const router = express.Router();
 
 router.post('/', createOrder); // Create order

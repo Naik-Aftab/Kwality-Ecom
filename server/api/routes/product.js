@@ -1,7 +1,7 @@
 const express = require('express');
-const upload = require("../middlewares/upload");
+const upload = require("../../middlewares/upload");
 const { createProduct, getProducts, getProductById, updateProduct, deleteProduct } = require('../controllers/productController');
-const protect = require('../middlewares/protect'); // Importing the protect middleware
+const protect = require('../../middlewares/protect'); // Importing the protect middleware
 
 const router = express.Router();
 

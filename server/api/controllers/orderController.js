@@ -1,8 +1,8 @@
-const Order = require("../models/Order");
-const Product = require("../models/Product");
-const Customer = require("../models/Customer");
-const createInvoice = require("../utils/createInvoice");
-const sendEmail = require("../utils/sendMail");
+const Order = require("../../models/Order");
+const Product = require("../../models/Product");
+const Customer = require("../../models/Customer");
+const createInvoice = require("../../utils/createInvoice");
+const sendEmail = require("../../utils/sendMail");
 
 // @desc    Create a new order
 // @route   POST /api/orders

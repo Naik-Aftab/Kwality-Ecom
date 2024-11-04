@@ -1,5 +1,5 @@
-const Category = require('../models/Category');
-const Product = require('../models/Product');
+const Category = require('../../models/Category');
+const Product = require('../../models/Product');
 
 // @desc    Create a new category
 // @route   POST /api/categories

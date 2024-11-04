@@ -1,6 +1,6 @@
 const express = require('express');
 const { getMetrics } = require('../controllers/metricsController');
-const protect = require('../middlewares/protect'); // Importing the protect middleware
+const protect = require('../../middlewares/protect'); // Importing the protect middleware
 
 
 const router = express.Router();
