@@ -18,15 +18,15 @@ exports.createOrder = async (req, res) => {
     }
 
     // // Check if all products exist
-    // const productIds = products.map((item) => item.product); // Ensure we use item.product
-    // const existingProducts = await Product.find({ _id: { $in: productIds } });
+    const productIds = products.map((item) => item.product); // Ensure we use item.product
+    const existingProducts = await Product.find({ _id: { $in: productIds } });
 
     // Validate product existence
-    // if (existingProducts.length !== products.length) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "One or more products do not exist" });
-    // }
+    if (existingProducts.length !== products.length) {
+      return res
+        .status(400)
+        .json({ message: "One or more products do not exist" });
+    }
     // Create a new order
     const order = await Order.create({
       customer,
