@@ -29,17 +29,17 @@ app.use("/uploads", express.static("public/uploads"));
 
 // Routes
 app.use('/auth', authRoutes);           // Auth routes
-app.use('/api/categories', categoryRoutes); // Category routes
-app.use('/api/products', productRoutes);    // Product routes
+app.use('/categories', categoryRoutes); // Category routes
+app.use('/products', productRoutes);    // Product routes
 app.use('/orders', orderRoutes);        // Order routes
 app.use('/customers', customerRoutes);  // Customers
 app.use('/metrics', metricsRoutes);     // Metrics routes
 app.use('/porter', porterRoutes);     // Metrics routes
 
 
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-module.exports = app;
+// module.exports = app;
