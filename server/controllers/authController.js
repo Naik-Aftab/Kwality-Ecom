@@ -65,7 +65,7 @@ exports.completeRegistration = async (req, res) => {
       password, // You may want to hash this in real use cases
     });
 
-    console.log('User registered:', newUser);
+    // console.log('User registered:', newUser);
 
     // Clear the temporary password
     delete temporaryPasswords[email];
@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    console.log("User logged in:", user);
+    // console.log("User logged in:", user);
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {

@@ -25,7 +25,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import EditIcon from "@mui/icons-material/Edit"; // Import Edit icon
 
-export default function OrderDetailModal({ order, open, onClose, onUpdateStatus }) {
+export default function OrderDetailModal({
+  order,
+  open,
+  onClose,
+  onUpdateStatus,
+}) {
   const [newStatus, setNewStatus] = useState(order.status);
 
   if (!order) return null; // Return null if no order is selected
@@ -62,9 +67,10 @@ export default function OrderDetailModal({ order, open, onClose, onUpdateStatus 
           </Typography>
           <Typography variant="body1" color="text.secondary">
             <strong>Order ID:</strong> {order.orderId}
-          </Typography>         
+          </Typography>
           <Typography variant="body1" color="text.secondary">
-            <strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}
+            <strong>Date:</strong>{" "}
+            {new Date(order.createdAt).toLocaleDateString()}
           </Typography>
         </Box>
 
@@ -107,7 +113,8 @@ export default function OrderDetailModal({ order, open, onClose, onUpdateStatus 
             <strong>Phone:</strong> {order.customer.phone}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            <strong>Shipping Address:</strong> {`${order.customer.shippingAddress.street}, ${order.customer.shippingAddress.city}, ${order.customer.shippingAddress.state}, ${order.customer.shippingAddress.zip}`}
+            <strong>Shipping Address:</strong>{" "}
+            {`${order.customer.shippingAddress.street_address1}, ${order.customer.shippingAddress.city}, ${order.customer.shippingAddress.state}, ${order.customer.shippingAddress.pincode}`}
           </Typography>
         </Box>
 
@@ -120,26 +127,37 @@ export default function OrderDetailModal({ order, open, onClose, onUpdateStatus 
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><strong>Product</strong></TableCell>
-                  <TableCell align="right"><strong>Price</strong></TableCell>
-                  <TableCell align="right"><strong>Quantity</strong></TableCell>
-                  <TableCell align="right"><strong>Total</strong></TableCell>
+                  <TableCell>
+                    <strong>Product</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Price</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Quantity</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Total</strong>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {console.log("================================", order)}
                 {order.products.map((item) => (
                   <TableRow key={item.product._id}>
                     <TableCell>{item.product.name}</TableCell>
-                    <TableCell align="right">₹ {item.product.salePrice}</TableCell>
+                    <TableCell align="right">
+                      ₹ {item.product.salePrice}
+                    </TableCell>
                     <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">₹ {item.product.salePrice * item.quantity}</TableCell>
+                    <TableCell align="right">
+                      ₹ {item.product.salePrice * item.quantity}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </Box> 
+        </Box>
 
         {/* Summary */}
         <Box mt={2} mb={4}>
@@ -153,7 +171,8 @@ export default function OrderDetailModal({ order, open, onClose, onUpdateStatus 
             <strong>Shipping Charge:</strong> ₹ {order.shippingCharge}
           </Typography>
           <Typography variant="h6" mt={2}>
-            <CurrencyRupeeIcon /> <strong>Total Payable:</strong> ₹ {order.totalAmount + order.shippingCharge}
+            <CurrencyRupeeIcon /> <strong>Total Payable:</strong> ₹{" "}
+            {order.totalAmount + order.shippingCharge}
           </Typography>
         </Box>
       </DialogContent>

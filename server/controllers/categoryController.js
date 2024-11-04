@@ -58,7 +58,7 @@ exports.getAllProductsByCategory = async (req, res) => {
 
   try {
     const products = await Product.find({ category: categoryId }); // Find products by category ID
-    console.log("==========",products);
+    // console.log("==========",products);
     if (!products.length) {
       return res.status(404).json({ message: 'No products found for this category.' });
     }

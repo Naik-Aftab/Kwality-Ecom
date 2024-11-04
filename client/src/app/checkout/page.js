@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/navigation';
-import { clearCart } from '@/store/slices/cartSlice'; 
-import { TextField, Button, CircularProgress } from '@mui/material';
-import Link from 'next/link';
-import Swal from 'sweetalert2'; // Import SweetAlert
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { clearCart } from "@/store/slices/cartSlice";
+import { TextField, Button, CircularProgress } from "@mui/material";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import GoogleApiAutocomplete from "@/components/GoogleApiAutocomplete";
 
 const Checkout = () => {
   const router = useRouter();
@@ -27,16 +28,36 @@ const Checkout = () => {
   );
 
   const shippingCost = 100; // Fixed shipping cost
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [addressComponents, setAddressComponents] = useState({});
   const [shippingAddress, setShippingAddress] = useState({
-    street: '',
-    city: '',
-    state: '',
-    zip: '',
+      street_address1: "",
+      city: "",
+      apartment_address: "",
+      state: "",
+      pincode: "",
+      country: "",
+      lat: "",
+      lng: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState('cashOnDelivery'); // Default payment method
+  const [paymentMethod, setPaymentMethod] = useState("cashOnDelivery"); // Default payment method
+
+  const handleAddressSelect = (selectedAddressComponents) => {
+    setAddressComponents(selectedAddressComponents);
+    // Update the shippingAddress state with the selected address components
+    setShippingAddress({
+      street_address1: selectedAddressComponents.street_address1,
+      city: selectedAddressComponents.city,
+      apartment_address: selectedAddressComponents.apartment_address,
+      state: selectedAddressComponents.state,
+      pincode: selectedAddressComponents.pincode,
+      country: selectedAddressComponents.country,
+      lat: selectedAddressComponents.latitude,
+      lng: selectedAddressComponents.longitude,
+    });
+  };
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
@@ -54,42 +75,121 @@ const Checkout = () => {
       phone,
       shippingAddress,
     };
-
+  
     setLoading(true);
     try {
-      const customerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`, customerData);
+      // Step 1: Create Customer
+      let customerResponse;
+      try {
+        customerResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`,
+          customerData
+        );
+      } catch (error) {
+        console.error("Error creating customer:", error);
+        await Swal.fire({
+          title: "Error",
+          text: "Failed to create customer. Please try again.",
+          icon: "error",
+        });
+        return;
+      }
+  
       const customerId = customerResponse.data.customer._id;
-
+      console.log("customerResponse.data.customer", customerResponse.data);
+  
+      // Step 2: Create Order
       const orderData = {
         customer: customerId,
-        products: cartItems.map(item => ({
+        products: cartItems.map((item) => ({
           product: item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         totalQuantity,
-        totalAmount: totalAmount + shippingCost,
+        totalAmount: totalAmount,
         shippingCharge: shippingCost,
         paymentMethod,
       };
-
-      await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`, orderData);
-      
-      // SweetAlert confirmation
+  
+      let orderResponse;
+      try {
+        orderResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`,
+          orderData
+        );
+      } catch (error) {
+        console.error("Error creating order:", error);
+        await Swal.fire({
+          title: "Error",
+          text: "Failed to place order. Please try again.",
+          icon: "error",
+        });
+        return;
+      }
+  
+      console.log("orderResponse", orderResponse.data);
+  
+      // Step 3: Call Porter API to create order
+      const porterOrderData = {
+        request_id: orderResponse.data._id,
+        drop_details: {
+          address: {
+            apartment_address: addressComponents.apartment_address,
+            street_address1: addressComponents.street_address1,
+            city: addressComponents.city,
+            state: addressComponents.state,
+            pincode: addressComponents.pincode,
+            country: addressComponents.country,
+            lat: addressComponents.latitude,
+            lng: addressComponents.longitude,
+            contact_details: {
+              name: customerResponse.data.customer.fullName,
+              phone_number: customerResponse.data.customer.phone,
+            },
+          },
+        },
+      };
+  
+      // let porterResponse;
+      // try {
+      //   porterResponse = await axios.post(
+      //     `${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
+      //     porterOrderData
+      //   );
+      // } catch (error) {
+      //   console.error("Error creating Porter order:", error);
+      //   await Swal.fire({
+      //     title: "Error",
+      //     text: "Failed to schedule delivery. Please try again.",
+      //     icon: "error",
+      //   });
+      //   return;
+      // }
+  
+      // console.log("porterResponse", porterResponse);
+  
+      // SweetAlert confirmation on success
       await Swal.fire({
-        title: 'Order Placed!',
-        text: 'Your order has been placed successfully!',
-        icon: 'success'
+        title: "Order Placed!",
+        text: "Your order has been placed successfully!",
+        icon: "success",
       });
-
-      dispatch(clearCart()); 
-      router.push('/thankyou');
+  
+      // Clear cart and redirect to thank you page
+      dispatch(clearCart());
+      router.push("/thankyou");
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('An error occurred while placing the order. Please try again.');
+      console.error("Unexpected error:", error);
+      await Swal.fire({
+        title: "Error",
+        text: "An unexpected error occurred. Please try again.",
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
+  
 
   if (!isHydrated) {
     return null;
@@ -98,7 +198,6 @@ const Checkout = () => {
   return (
     <div className="container mx-auto px-6 py-10">
       <h1 className="text-4xl font-bold mb-6 text-center">Checkout</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Column - Shipping Information */}
         <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
@@ -110,91 +209,111 @@ const Checkout = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <TextField 
-                label="Full Name" 
-                variant="outlined" 
-                fullWidth 
-                className="mb-4" 
-                value={fullName} 
-                onChange={(e) => setFullName(e.target.value)} 
-                required 
+              <TextField
+                label="Full Name"
+                variant="outlined"
+                fullWidth
+                className="mb-4"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
               />
-              <TextField 
-                label="Email" 
-                type="email" 
-                variant="outlined" 
-                fullWidth 
-                className="mb-4" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
+              <TextField
+                label="Email"
+                type="email"
+                variant="outlined"
+                fullWidth
+                className="mb-4"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <TextField 
-                label="Phone" 
-                variant="outlined" 
-                fullWidth 
-                className="mb-4" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)} 
-                required 
+              <TextField
+                label="Phone"
+                variant="outlined"
+                fullWidth
+                className="mb-4"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
               />
 
               {/* Shipping Address Fields */}
               <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
-              <TextField 
-                label="Address" 
-                name="street" 
-                variant="outlined" 
-                fullWidth 
-                className="mb-4" 
-                value={shippingAddress.street} 
-                onChange={handleAddressChange} 
-                required 
+
+              <GoogleApiAutocomplete onAddressSelect={handleAddressSelect} />
+
+              <TextField
+                label="Flat No / House No / Appartment"
+                name="apartment_address"
+                variant="outlined"
+                fullWidth
+                className="mb-4"
+                value={shippingAddress.apartment_address}
+                onChange={handleAddressChange}
+                required
               />
               <div className="flex space-x-4 mb-4">
-                <TextField 
-                  label="City" 
-                  name="city" 
-                  variant="outlined" 
-                  fullWidth 
-                  value={shippingAddress.city} 
-                  onChange={handleAddressChange} 
-                  required 
+                <TextField
+                  label="City"
+                  name="city"
+                  variant="outlined"
+                  fullWidth
+                  value={shippingAddress.city}
+                  onChange={handleAddressChange}
+                  required
                 />
-                <TextField 
-                  label="State" 
-                  name="state" 
-                  variant="outlined" 
-                  fullWidth 
-                  value={shippingAddress.state} 
-                  onChange={handleAddressChange} 
-                  required 
+                <TextField
+                  label="Pin Code"
+                  name="pincode"
+                  variant="outlined"
+                  fullWidth
+                  value={shippingAddress.pincode}
+                  onChange={handleAddressChange}
+                  required
                 />
               </div>
-              <TextField 
-                label="Pin Code" 
-                name="zip" 
-                variant="outlined" 
-                fullWidth 
-                className="mb-4" 
-                value={shippingAddress.zip} 
-                onChange={handleAddressChange} 
-                required 
-              />
 
               <fieldset className="mb-4">
-                <legend className="block text-gray-700 mb-2">Payment Method</legend>
+                <legend className="block text-gray-700 mb-2">
+                  Payment Method
+                </legend>
                 <div className="flex items-center mb-2">
-                  <input type="radio" id="cashOnDelivery" name="paymentMethod" value="cashOnDelivery" checked={paymentMethod === 'cashOnDelivery'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                  <label htmlFor="cashOnDelivery" className="ml-2">Cash on Delivery</label>
+                  <input
+                    type="radio"
+                    id="cashOnDelivery"
+                    name="paymentMethod"
+                    value="cashOnDelivery"
+                    checked={paymentMethod === "cashOnDelivery"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                  <label htmlFor="cashOnDelivery" className="ml-2">
+                    Cash on Delivery
+                  </label>
                 </div>
                 <div className="flex items-center mb-2">
-                  <input type="radio" id="onlinePayment" name="paymentMethod" value="onlinePayment" checked={paymentMethod === 'onlinePayment'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                  <label htmlFor="onlinePayment" className="ml-2">Online Payment</label>
+                  <input
+                    type="radio"
+                    id="onlinePayment"
+                    name="paymentMethod"
+                    value="onlinePayment"
+                    checked={paymentMethod === "onlinePayment"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                  <label htmlFor="onlinePayment" className="ml-2">
+                    Online Payment
+                  </label>
                 </div>
               </fieldset>
-              <Button type="submit" variant="contained" color="primary" fullWidth className={loading ? 'opacity-50 cursor-not-allowed' : ''} disabled={loading}>
-                {loading ? 'Placing Order...' : 'Place Order'}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                className={loading ? "opacity-50 cursor-not-allowed" : ""}
+                disabled={loading}
+              >
+                {loading ? "Placing Order..." : "Place Order"}
               </Button>
             </form>
           )}
@@ -208,16 +327,27 @@ const Checkout = () => {
           {cartItems.length > 0 ? (
             <>
               {cartItems.map((item) => (
-                <div key={item.id} className="flex justify-between items-center mb-4">
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center mb-4"
+                >
                   <div className="flex items-center">
-                    <img src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`} alt={item.name} className="w-16 h-16 object-cover rounded-lg mr-4" />
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg mr-4"
+                    />
                     <div>
                       <h3 className="text-lg font-medium">{item.name}</h3>
-                      <p className="text-gray-600">{item.quantity} x ₹{item.price.toFixed(2)}</p>
+                      <p className="text-gray-600">
+                        {item.quantity} x ₹{item.price.toFixed(2)}
+                      </p>
                     </div>
                   </div>
-                  <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
-                </div>                
+                  <p className="font-semibold">
+                    ₹{(item.price * item.quantity).toFixed(2)}
+                  </p>
+                </div>
               ))}
               {/* Button to Modify Cart */}
               <Link href="/cart" passHref>

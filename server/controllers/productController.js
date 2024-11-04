@@ -25,7 +25,7 @@ exports.createProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    console.log('Product created:', newProduct);
+    // console.log('Product created:', newProduct);
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error creating product:', error.message);
@@ -49,7 +49,7 @@ exports.getProducts = async (req, res) => {
     }
 
     const products = await Product.find(filter).populate('category');  // No populate here
-    console.log('Fetched products', search ? `with search term: ${search}` : 'all products');
+    // console.log('Fetched products', search ? `with search term: ${search}` : 'all products');
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error.message);
@@ -65,7 +65,7 @@ exports.getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    console.log(`Fetched product with ID: ${req.params.id}`);
+    // console.log(`Fetched product with ID: ${req.params.id}`);
     res.status(200).json(product);
   } catch (error) {
     console.error('Error fetching product:', error.message);
@@ -124,7 +124,7 @@ exports.deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    console.log(`Deleted product with ID: ${req.params.id}`);
+    // console.log(`Deleted product with ID: ${req.params.id}`);
     res.status(200).json({ message: 'Product deleted' });
   } catch (error) {
     console.error('Error deleting product:', error.message);

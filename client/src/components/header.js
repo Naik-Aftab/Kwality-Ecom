@@ -8,6 +8,7 @@ import {
   InputBase,
   IconButton,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
@@ -34,7 +35,7 @@ const Header = () => {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/products?search=${searchTerm}`
       );
       setSearchResults(data);
-      console.log("Search results:", data);
+      // console.log("Search results:", data);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -52,7 +53,7 @@ const Header = () => {
 
   return (
     <header>
-      <AppBar position="static" className="bg-white" elevation={0}>
+      <AppBar position="static" elevation={0} sx={{background:"#fff"}}>
         <Toolbar className="flex justify-around items-center">
           <Link href="/">
             <img src="/logo.png" alt="Logo" className="h-20" />
@@ -108,6 +109,30 @@ const Header = () => {
               )}
             </Link>
           </IconButton>
+
+          <Link href={`/bulkOrder`} passHref>
+                <Button
+                  size="small"
+                  sx={{
+                    color: "white",
+                    background:
+                      "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
+                    borderRadius: 25,
+                    boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
+                    padding: "10px 20px",
+                    fontWeight: "bold",
+                    transition: "0.3s ease",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
+                      transform: "scale(1.05)",
+                      boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
+                    },
+                  }}
+                >
+                  Bulk Order
+                </Button>
+              </Link>
         </Toolbar>
       </AppBar>
     </header>

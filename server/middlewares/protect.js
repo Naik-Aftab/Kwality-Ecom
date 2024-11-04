@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // Use the Customer model instead of User model
     req.User = await User.findById(decoded.id);
-    console.log("customer",req.User);
+    // console.log("customer",req.User);
 
     
     if (!req.User) {

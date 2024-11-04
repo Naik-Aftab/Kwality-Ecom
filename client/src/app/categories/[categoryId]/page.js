@@ -26,7 +26,7 @@ const CategoryProducts = () => {
         try {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/categories/${categoryId}/products`);
           setProducts(response.data);
-          console.log("Products for category:", response.data);
+          // console.log("Products for category:", response.data);
         } catch (error) {
           setError("Failed to fetch products.");
           console.error("Error fetching products:", error); // Improved logging

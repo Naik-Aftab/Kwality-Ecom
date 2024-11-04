@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         },
     });
       setOrders(response.data.orders.slice(0, 5));
-      console.log("order details",response.data);
+      // console.log("order details",response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }

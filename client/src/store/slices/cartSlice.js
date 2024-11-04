@@ -1,18 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 // Function to load the cart from localStorage
-// const loadCartFromLocalStorage = () => {
-//   try {
-//     const serializedCart = localStorage.getItem('cart');
-//     if (serializedCart === null) {
-//       return { items: [], totalQuantity: 0 }; // Default state if no cart exists in localStorage
-//     }
-//     return JSON.parse(serializedCart);
-//   } catch (error) {
-//     console.error('Error loading cart from localStorage:', error);
-//     return { items: [], totalQuantity: 0 }; // Default state in case of error
-//   }
-// };
+const loadCartFromLocalStorage = () => {
+  try {
+    const serializedCart = localStorage.getItem('cart');
+    if (serializedCart === null) {
+      return { items: [], totalQuantity: 0 }; // Default state if no cart exists in localStorage
+    }
+    return JSON.parse(serializedCart);
+  } catch (error) {
+    console.error('Error loading cart from localStorage:', error);
+    return { items: [], totalQuantity: 0 }; // Default state in case of error
+  }
+};
 
 // Function to save the cart to localStorage
 const saveCartToLocalStorage = (state) => {
@@ -26,14 +26,14 @@ const saveCartToLocalStorage = (state) => {
 
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: { items: [], totalQuantity: 0 }, // Load cart state from localStorage on initialization
+  initialState: loadCartFromLocalStorage(), // Load cart state from localStorage on initialization
   reducers: {
     addToCart(state, action) {
       const newItem = action.payload;
       const existingItem = state.items.find(item => item.id === newItem.id);
 
       if (existingItem) {
-        console.log("new item quantity", newItem.quantity, "existing item quantity", existingItem.quantity);
+        // console.log("new item quantity", newItem.quantity, "existing item quantity", existingItem.quantity);
         existingItem.quantity += newItem.quantity;
       } else {
         state.items.push({
@@ -70,11 +70,11 @@ const cartSlice = createSlice({
     },
 
      // New reducer to set cart from localStorage
-     setCartFromLocalStorage(state, action) {
-      return action.payload; // Set state from localStorage data
-    }
+    //  setCartFromLocalStorage(state, action) {
+    //   return action.payload; // Set state from localStorage data
+    // }
   },
 });
 
-export const { addToCart, removeFromCart, clearCart, setCartFromLocalStorage } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

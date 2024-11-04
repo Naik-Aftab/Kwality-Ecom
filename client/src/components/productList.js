@@ -22,7 +22,7 @@ export const ProductList = () => {
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/products`
         );
         setProducts(response.data.slice(0, 8));
-        console.log("Products", response.data);
+        // console.log("Products", response.data);
         setLoading(false);
       } catch (err) {
         setError("Failed to load products.");

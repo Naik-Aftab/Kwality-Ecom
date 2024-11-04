@@ -39,6 +39,8 @@ export default function AdminProductList() {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
   const [token, setToken] = useState(null);
+  const [openCustom, setOpenCustom] = useState(false);
+  const [variations, setVariations] = useState([{ weight: '', price: '' }]);
 
   useEffect(() => {
     // Fetch token from localStorage and set it in the state
@@ -46,7 +48,7 @@ export default function AdminProductList() {
     setToken(storedToken);
 
     // Fetch products and categories if token is available
-    if (token) {
+    if (storedToken) {
       fetchProducts();
       fetchCategories();
     }
@@ -212,12 +214,65 @@ export default function AdminProductList() {
     }
   };
 
+  const handleOpenCustomModal = () => {
+    setSelectedProduct({});
+    setVariations([{ weight: '', price: '' }]);
+    setOpenCustom(true);
+  };
+
+  const handleCloseCustomModal = () => {
+    setOpenCustom(false);
+    setVariations([{ weight: '', price: '' }]);
+  };
+
+  const handleAddVariation = () => {
+    setVariations([...variations, { weight: '', price: '' }]);
+  };
+
+  const handleVariationChange = (index, key, value) => {
+    const newVariations = [...variations];
+    newVariations[index][key] = value;
+    setVariations(newVariations);
+  };
+
+  const handleAddCustomProduct = async () => {
+    const formData = new FormData();
+    formData.append("name", selectedProduct.name);
+    formData.append("description", selectedProduct.description);
+    formData.append("category", selectedProduct.category._id);
+    variations.forEach((variation, index) => {
+      formData.append(`variations[${index}][weight]`, variation.weight);
+      formData.append(`variations[${index}][price]`, variation.price);
+    });
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/products`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchProducts();
+      handleCloseCustomModal();
+    } catch (err) {
+      console.error("Error adding custom product:", err);
+    }
+  };
+
   return (
     <Box p={4}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" gutterBottom>
           Products List
         </Typography>
+        <Box>
         <Button
           variant="contained"
           color="primary"
@@ -225,9 +280,18 @@ export default function AdminProductList() {
             setSelectedProduct({});
             setOpen(true);
           }}
+          sx={{ mr: 2 }}
         >
-          Add Product
+          Add Single Product
         </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleOpenCustomModal}
+        >
+          Add Customize Product
+        </Button>
+        </Box>
       </Box>
 
       <TableContainer component={Paper} elevation={3}>
@@ -308,7 +372,7 @@ export default function AdminProductList() {
                   label="Weight (grams)"
                   fullWidth
                   name="grams"
-                  value={selectedProduct.weight.grams || ""}
+                  value={selectedProduct.weight?.grams || ""}
                   onChange={handleInputChange}
                   margin="normal"
                 />
@@ -316,7 +380,7 @@ export default function AdminProductList() {
                   label="Pieces"
                   fullWidth
                   name="pieces"
-                  value={selectedProduct.weight.pieces || ""}
+                  value={selectedProduct.weight?.pieces || ""}
                   onChange={handleInputChange}
                   margin="normal"
                 />
@@ -324,7 +388,7 @@ export default function AdminProductList() {
                   label="serves"
                   fullWidth
                   name="serves"
-                  value={selectedProduct.weight.serves || ""}
+                  value={selectedProduct.weight?.serves || ""}
                   onChange={handleInputChange}
                   margin="normal"
                 />
@@ -412,6 +476,99 @@ export default function AdminProductList() {
           </DialogActions>
         </Dialog>
       )}
+
+
+            {/* Custom Product Modal */}
+      <Dialog open={openCustom} onClose={handleCloseCustomModal} fullWidth maxWidth="md">
+        <DialogTitle>Add Customized Product</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Product Name"
+            fullWidth
+            name="name"
+            value={selectedProduct?.name || ""}
+            onChange={handleInputChange}
+            margin="normal"
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            multiline
+            rows={4}
+            name="description"
+            value={selectedProduct?.description || ""}
+            onChange={handleInputChange}
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+              <Select
+                displayEmpty
+                value={selectedProduct?.category || ""}
+                onChange={(e) =>
+                  setSelectedProduct((prev) => ({
+                    ...prev,
+                    category: e.target.value,
+                  }))
+                }
+                renderValue={(selected) => {
+                  if (!selected) {
+                    return <em>Select Category</em>;
+                  }
+                  return categories.find((cat) => cat._id === selected)?.name;
+                }}
+              >
+                {categories.map((category) => (
+                  <MenuItem key={category._id} value={category._id}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+           
+          {variations.map((variation, index) => (
+            <Box display="flex" gap={2} mb={2} key={index}>
+              <TextField
+                label="Weight"
+                fullWidth
+                value={variation.weight}
+                onChange={(e) =>
+                  handleVariationChange(index, "weight", e.target.value)
+                }
+              />
+              <TextField
+                label="Price"
+                fullWidth
+                value={variation.price}
+                onChange={(e) =>
+                  handleVariationChange(index, "price", e.target.value)
+                }
+              />
+            </Box>
+          ))}
+       
+          <Button onClick={handleAddVariation} variant="outlined">
+            Add Variation
+          </Button>
+
+          <Box>
+          <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              style={{ marginTop: "1rem" }}
+            />
+          </Box>
+            
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCustomModal}>Cancel</Button>
+          <Button onClick={handleAddCustomProduct} color="primary">
+            Add Product
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

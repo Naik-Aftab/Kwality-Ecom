@@ -15,7 +15,7 @@ export default function Login() {
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, { email, password });
       localStorage.setItem("token", res.data.token);
-      console.log("token", res.data.token);
+      // console.log("token", res.data.token);
       router.push("/admin");
     } catch (err) {
       setError("Invalid email or password");

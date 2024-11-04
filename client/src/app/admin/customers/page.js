@@ -23,8 +23,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import useAuth from '../withauth';
-
+import useAuth from "../withauth";
 
 export default function AdminCustomerList() {
   useAuth();
@@ -39,11 +38,11 @@ export default function AdminCustomerList() {
 
   useEffect(() => {
     // Fetch token from localStorage and set it in the state
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem("token");
     setToken(storedToken);
 
     // Fetch products and categories if token is available
-    if (token) {
+    if (storedToken) {
       fetchCustomers();
     }
   }, []);
@@ -52,14 +51,18 @@ export default function AdminCustomerList() {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`, {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`,
+        {
           params: { page, limit },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        });
-        setCustomers(res.data.customers);
-        setTotalPages(Math.ceil(res.data.totalCount / limit)); // Calculate total pages
+        }
+      );
+      // console.log("customer data",res.data);
+      setCustomers(res.data.customers);
+      setTotalPages(Math.ceil(res.data.totalCount / limit)); // Calculate total pages
     } catch (err) {
       console.error("Error fetching customers:", err);
     } finally {
@@ -67,11 +70,10 @@ export default function AdminCustomerList() {
     }
   };
 
-
-    // Handle page change
-    const handlePageChange = (event, value) => {
-        setPage(value);
-      };
+  // Handle page change
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   // Open modal with selected customer details
   const handleOpen = (customer) => {
@@ -107,7 +109,9 @@ export default function AdminCustomerList() {
         );
       } else {
         // Add new customer
-        await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`, selectedCustomer,
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`,
+          selectedCustomer,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -124,10 +128,13 @@ export default function AdminCustomerList() {
 
   // Delete customer
   const handleCustomerDelete = async (customerId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this customer?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this customer?"
+    );
     if (confirmDelete) {
       try {
-        await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers/${customerId}`,
+        await axios.delete(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers/${customerId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -143,7 +150,12 @@ export default function AdminCustomerList() {
 
   return (
     <Box p={4}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
         <Typography variant="h4" gutterBottom>
           Customers List
         </Typography>
@@ -153,7 +165,12 @@ export default function AdminCustomerList() {
           variant="contained"
           color="primary"
           onClick={() => {
-            setSelectedCustomer({ fullName: "", email: "", phone: "", shippingAddress: {} });
+            setSelectedCustomer({
+              fullName: "",
+              email: "",
+              phone: "",
+              shippingAddress: {},
+            });
             setOpen(true);
           }}
         >
@@ -197,15 +214,21 @@ export default function AdminCustomerList() {
                   <TableCell>{customer.email}</TableCell>
                   <TableCell>{customer.phone}</TableCell>
                   <TableCell>
-                  {customer.shippingAddress ? 
-                    `${customer.shippingAddress.street}, ${customer.shippingAddress.city}, ${customer.shippingAddress.state}, ${customer.shippingAddress.zip}` 
-                        : "No Shipping Address"}
+                    {customer.shippingAddress
+                      ? `${customer.shippingAddress.address}, ${customer.shippingAddress.city}, ${customer.shippingAddress.state}, ${customer.shippingAddress.pincode}`
+                      : "No Shipping Address"}
                   </TableCell>
                   <TableCell>
-                    <IconButton color="primary" onClick={() => handleOpen(customer)}>
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleOpen(customer)}
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton color="error" onClick={() => handleCustomerDelete(customer._id)}>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleCustomerDelete(customer._id)}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -258,16 +281,16 @@ export default function AdminCustomerList() {
                 margin="normal"
               />
               <TextField
-                label="Street"
+                label="address"
                 fullWidth
-                name="street"
-                value={selectedCustomer.shippingAddress.street || ""}
+                name="address"
+                value={selectedCustomer.shippingAddress.address || ""}
                 onChange={(e) =>
                   setSelectedCustomer({
                     ...selectedCustomer,
                     shippingAddress: {
                       ...selectedCustomer.shippingAddress,
-                      street: e.target.value,
+                      address: e.target.value,
                     },
                   })
                 }
@@ -306,16 +329,16 @@ export default function AdminCustomerList() {
                 margin="normal"
               />
               <TextField
-                label="Zip"
+                label="pincode"
                 fullWidth
-                name="zip"
-                value={selectedCustomer.shippingAddress.zip || ""}
+                name="pincode"
+                value={selectedCustomer.shippingAddress.pincode || ""}
                 onChange={(e) =>
                   setSelectedCustomer({
                     ...selectedCustomer,
                     shippingAddress: {
                       ...selectedCustomer.shippingAddress,
-                      zip: e.target.value,
+                      pincode: e.target.value,
                     },
                   })
                 }
@@ -327,7 +350,11 @@ export default function AdminCustomerList() {
             <Button onClick={handleClose} color="secondary">
               Cancel
             </Button>
-            <Button onClick={handleSaveCustomer} variant="contained" color="primary">
+            <Button
+              onClick={handleSaveCustomer}
+              variant="contained"
+              color="primary"
+            >
               {selectedCustomer._id ? "Save Changes" : "Add Customer"}
             </Button>
           </DialogActions>

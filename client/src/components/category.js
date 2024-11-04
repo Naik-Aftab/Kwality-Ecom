@@ -13,7 +13,7 @@ export const Category = () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/categories`);
         setCategories(response.data);
-        console.log("Category data:", response.data);
+        // console.log("Category data:", response.data);
       } catch (error) {
         setError("Failed to fetch categories.");
       } finally {

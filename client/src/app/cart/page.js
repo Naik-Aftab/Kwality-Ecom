@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart } from '@/store/slices/cartSlice';
-import Link from 'next/link';
+import { removeFromCart } from "@/store/slices/cartSlice";
+import Link from "next/link";
 import Header from "@/components/header";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -10,15 +10,18 @@ import Footer from "@/components/footer";
 
 const Cart = () => {
   // Get cart items and total quantity from the Redux store
-  const cartItems = useSelector(state => state.cart.items);
-  const totalQuantity = useSelector(state => state.cart.totalQuantity);
+  const cartItems = useSelector((state) => state.cart.items);
+  const totalQuantity = useSelector((state) => state.cart.totalQuantity);
   const dispatch = useDispatch();
 
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Calculate total price of the cart
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   const handleRemoveFromCart = (id) => {
     dispatch(removeFromCart(id));
@@ -43,22 +46,29 @@ const Cart = () => {
             {/* Cart Items Section */}
             <div className="flex-1 max-h-96 overflow-y-auto pr-4 mb-6 lg:mb-0">
               <div className="grid grid-cols-1 gap-6 mb-6">
-                {cartItems.map(item => (
+                {cartItems.map((item) => (
                   <div
                     key={item.id}
                     className="bg-white p-4 rounded-lg shadow-lg flex items-center justify-between hover:shadow-xl transition-shadow duration-300"
                   >
                     {/* Product Image and Details */}
                     <div className="flex items-center">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`} // Assuming image URL is correct
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
+                      
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`}
+                          alt={item.name}
+                          className="w-20 h-20 object-cover rounded-lg"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      
                       <div className="ml-4">
                         <h3 className="text-xl font-semibold">{item.name}</h3>
-                        <p className="text-sm text-gray-500">Price: ₹{item.price}</p>
-                        <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                        <p className="text-sm text-gray-500">
+                          Price: ₹{item.price}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Quantity: {item.quantity}
+                        </p>
                       </div>
                     </div>
 
@@ -91,36 +101,37 @@ const Cart = () => {
                 <span className="text-lg font-bold">₹{totalPrice}</span>
               </div>
               <Link href="/checkout" passHref>
-                <button
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-500 transition"
-                >
+                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-500 transition">
                   Proceed to Checkout
                 </button>
               </Link>
             </div>
           </div>
-        )}    
+        )}
 
-       <Link href="/" passHref>
-            <button className="mt-6 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-400 transition">
-              Continue Shopping
-            </button>
-          </Link>
+        <Link href="/" passHref>
+          <button className="mt-6 bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-400 transition">
+            Continue Shopping
+          </button>
+        </Link>
       </div>
-      
-      
+
       {/* Snackbar for product removed from cart */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Positioning the Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Positioning the Snackbar
       >
-        <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="info"
+          sx={{ width: "100%" }}
+        >
           Product removed from cart!
         </Alert>
       </Snackbar>
-      <Footer/>
+      <Footer />
     </>
   );
 };
