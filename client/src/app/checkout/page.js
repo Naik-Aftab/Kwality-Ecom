@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import axios from "axios";
+import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearCart } from "@/store/slices/cartSlice";
-import { TextField, Button, CircularProgress, Box, Typography } from "@mui/material";
+import { TextField, Button, CircularProgress } from "@mui/material";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import GoogleApiAutocomplete from "@/components/GoogleApiAutocomplete";
@@ -26,7 +27,7 @@ const Checkout = () => {
     0
   );
 
-  const shippingCost = 100;
+  const shippingCost = 100; // Fixed shipping cost
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -41,10 +42,11 @@ const Checkout = () => {
     lat: "",
     lng: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("cashOnDelivery");
+  const [paymentMethod, setPaymentMethod] = useState("cashOnDelivery"); // Default payment method
 
   const handleAddressSelect = (selectedAddressComponents) => {
     setAddressComponents(selectedAddressComponents);
+    // Update the shippingAddress state with the selected address components
     setShippingAddress({
       street_address1: selectedAddressComponents.street_address1,
       city: selectedAddressComponents.city,
@@ -73,13 +75,15 @@ const Checkout = () => {
       phone,
       shippingAddress,
     };
-  
+
     setLoading(true);
     try {
+      // Step 1: Create Customer
       let customerResponse;
       try {
         customerResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`,
+          `
+          ${process.env.NEXT_PUBLIC_API_BASE_URL}/customers`,
           customerData
         );
       } catch (error) {
@@ -91,9 +95,11 @@ const Checkout = () => {
         });
         return;
       }
-  
+
       const customerId = customerResponse.data.customer._id;
-  
+      console.log("customerResponse.data.customer", customerResponse.data);
+
+      // Step 2: Create Order
       const orderData = {
         customer: customerId,
         products: cartItems.map((item) => ({
@@ -105,11 +111,12 @@ const Checkout = () => {
         shippingCharge: shippingCost,
         paymentMethod,
       };
-  
+
       let orderResponse;
       try {
         orderResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`,
+          `
+          ${process.env.NEXT_PUBLIC_API_BASE_URL}/orders`,
           orderData
         );
       } catch (error) {
@@ -121,13 +128,56 @@ const Checkout = () => {
         });
         return;
       }
-  
+
+      console.log("orderResponse", orderResponse.data);
+
+      // Step 3: Call Porter API to create order
+      const porterOrderData = {
+        request_id: orderResponse.data._id,
+        drop_details: {
+          address: {
+            apartment_address: addressComponents.apartment_address,
+            street_address1: addressComponents.street_address1,
+            city: addressComponents.city,
+            state: addressComponents.state,
+            pincode: addressComponents.pincode,
+            country: addressComponents.country,
+            lat: addressComponents.latitude,
+            lng: addressComponents.longitude,
+            contact_details: {
+              name: customerResponse.data.customer.fullName,
+              phone_number: customerResponse.data.customer.phone,
+            },
+          },
+        },
+      };
+
+      // let porterResponse;
+      // try {
+      //   porterResponse = await axios.post(`
+      //     ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
+      //     porterOrderData
+      //   );
+      // } catch (error) {
+      //   console.error("Error creating Porter order:", error);
+      //   await Swal.fire({
+      //     title: "Error",
+      //     text: "Failed to schedule delivery. Please try again.",
+      //     icon: "error",
+      //   });
+      //   return;
+      // }
+
+      // console.log("porterResponse", porterResponse);
+
+      // SweetAlert confirmation on success
       await Swal.fire({
         title: "Order Placed!",
         text: "Your order has been placed successfully!",
         icon: "success",
       });
-  
+
+      // Clear cart and redirect to thank you page
       dispatch(clearCart());
       router.push("/thankyou");
     } catch (error) {
@@ -141,33 +191,30 @@ const Checkout = () => {
       setLoading(false);
     }
   };
-  
 
   if (!isHydrated) {
     return null;
   }
 
   return (
-    <Box sx={{ maxWidth: "lg", mx: "auto", px: 6, py: 10 }}>
-      <Typography variant="h4" sx={{ mb: 6, textAlign: "center", fontWeight: "bold" }}>
-        Checkout
-      </Typography>
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 8 }}>
-        
-        <Box sx={{ p: 8, backgroundColor: "white", borderRadius: 2, boxShadow: 3, "&:hover": { boxShadow: 4 } }}>
-          <Typography variant="h5" sx={{ mb: 4, fontWeight: "medium" }}>Shipping Information</Typography>
+    <div className="container mx-auto px-6 py-10">
+      <h1 className="text-4xl font-bold mb-6 text-center">Checkout</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Column - Shipping Information */}
+        <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+          <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
           {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div className="flex justify-center items-center">
               <CircularProgress />
-              <Typography sx={{ ml: 2 }}>Placing order...</Typography>
-            </Box>
+              <span className="ml-2">Placing order...</span>
+            </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <TextField
                 label="Full Name"
                 variant="outlined"
                 fullWidth
-                sx={{ mb: 4 }}
+                sx={{ mb: 2 }}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -177,7 +224,7 @@ const Checkout = () => {
                 type="email"
                 variant="outlined"
                 fullWidth
-                sx={{ mb: 4 }}
+                sx={{ mb: 2 }}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -186,14 +233,14 @@ const Checkout = () => {
                 label="Phone"
                 variant="outlined"
                 fullWidth
-                sx={{ mb: 4 }}
+                sx={{ mb: 2 }}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
               />
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: "medium" }}>
-                Shipping Address
-              </Typography>
+
+              {/* Shipping Address Fields */}
+              <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
 
               <GoogleApiAutocomplete onAddressSelect={handleAddressSelect} />
 
@@ -202,12 +249,12 @@ const Checkout = () => {
                 name="apartment_address"
                 variant="outlined"
                 fullWidth
-                sx={{ mb: 4 }}
+                sx={{ mb: 2 }}
                 value={shippingAddress.apartment_address}
                 onChange={handleAddressChange}
                 required
               />
-              <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+              <div className="flex space-x-4" sx={{ mb: 2 }}>
                 <TextField
                   label="City"
                   name="city"
@@ -226,13 +273,11 @@ const Checkout = () => {
                   onChange={handleAddressChange}
                   required
                 />
-              </Box>
+              </div>
 
-              <Box component="fieldset" sx={{ mb: 4 }}>
-                <Typography component="legend" sx={{ color: "text.primary", mb: 2 }}>
-                  Payment Method
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <fieldset sx={{ mb: 2 }}>
+                <legend className="block text-gray-700">Payment Method</legend>
+                <div className="flex items-center" sx={{ mb: 1 }}>
                   <input
                     type="radio"
                     id="cashOnDelivery"
@@ -241,11 +286,11 @@ const Checkout = () => {
                     checked={paymentMethod === "cashOnDelivery"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <Typography component="label" htmlFor="cashOnDelivery" sx={{ ml: 2 }}>
+                  <label htmlFor="cashOnDelivery" className="ml-2">
                     Cash on Delivery
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  </label>
+                </div>
+                <div className="flex items-center" sx={{ mb: 1 }}>
                   <input
                     type="radio"
                     id="onlinePayment"
@@ -254,77 +299,84 @@ const Checkout = () => {
                     checked={paymentMethod === "onlinePayment"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <Typography component="label" htmlFor="onlinePayment" sx={{ ml: 2 }}>
+                  <label htmlFor="onlinePayment" className="ml-2">
                     Online Payment
-                  </Typography>
-                </Box>
-              </Box>
+                  </label>
+                </div>
+              </fieldset>
+
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
                 fullWidth
-                sx={{ opacity: loading ? 0.5 : 1 }}
+                className={loading ? "opacity-50 cursor-not-allowed" : ""}
                 disabled={loading}
               >
                 {loading ? "Placing Order..." : "Place Order"}
               </Button>
             </form>
           )}
-        </Box>
+        </div>
 
-        <Box sx={{ p: 8, backgroundColor: "white", borderRadius: 2, boxShadow: 3, "&:hover": { boxShadow: 4 } }}>
-          <Typography variant="h5" sx={{ mb: 4, fontWeight: "medium" }}>Order Summary</Typography>
+        {/* Right Column - Order Summary */}
+        <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+          <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
 
+          {/* Cart Items */}
           {cartItems.length > 0 ? (
             <>
               {cartItems.map((item) => (
-                <Box
+                <div
                   key={item.id}
-                  sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}
+                  className="flex justify-between items-center mb-4"
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <img src={item.imageUrl} alt={item.name} width={60} height={60} style={{ marginRight: "16px" }} />
-                    <Box>
-                      <Typography sx={{ fontWeight: "medium" }}>{item.name}</Typography>
-                      <Typography color="textSecondary">
-                        Quantity: {item.quantity}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Typography sx={{ fontWeight: "medium" }}>
-                    ₹{item.price * item.quantity}
-                  </Typography>
-                </Box>
+                  <div className="flex items-center">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg mr-4"
+                    />
+                    <div>
+                      <h3 className="text-lg font-medium">{item.name}</h3>
+                      <p className="text-gray-600">
+                        {item.quantity} x ₹{item.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="font-semibold">
+                    ₹{(item.price * item.quantity).toFixed(2)}
+                  </p>
+                </div>
               ))}
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <Typography color="textSecondary">Subtotal</Typography>
-                <Typography sx={{ fontWeight: "medium" }}>₹{totalAmount}</Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <Typography color="textSecondary">Shipping Cost</Typography>
-                <Typography sx={{ fontWeight: "medium" }}>₹{shippingCost}</Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <Typography color="textSecondary">Total Amount</Typography>
-                <Typography sx={{ fontWeight: "bold" }}>
-                  ₹{totalAmount + shippingCost}
-                </Typography>
-              </Box>
-            </>
-          ) : (
-            <Box sx={{ textAlign: "center", mt: 4 }}>
-              <Typography>Your cart is empty.</Typography>
-              <Link href="/" passHref>
-                <Button variant="contained" color="primary" sx={{ mt: 4 }}>
-                  Continue Shopping
+              {/* Button to Modify Cart */}
+              <Link href="/cart" passHref>
+                <Button variant="outlined" color="secondary" className="mt-4">
+                  Modify Cart
                 </Button>
               </Link>
-            </Box>
+              {/* Total Price */}
+              <div className="border-t mt-4 pt-4">
+                <div className="flex justify-between mb-2">
+                  <p>Total Items: {totalQuantity}</p>
+                  <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <p>Delivery Charges:</p>
+                  <p>₹{shippingCost.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <p>Total Amount:</p>
+                  <p>₹{(totalAmount + shippingCost).toFixed(2)}</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p>No items in the cart.</p>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 
