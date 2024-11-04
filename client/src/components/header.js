@@ -9,6 +9,7 @@ import {
   IconButton,
   CircularProgress,
   Button,
+  Box,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
@@ -35,7 +36,6 @@ const Header = () => {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/products?search=${searchTerm}`
       );
       setSearchResults(data);
-      // console.log("Search results:", data);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -53,23 +53,28 @@ const Header = () => {
 
   return (
     <header>
-      <AppBar position="static" elevation={0} sx={{background:"#fff"}}>
-        <Toolbar className="flex justify-around items-center">
+      <AppBar position="static" elevation={0} sx={{ background: "#fff" }}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
           <Link href="/">
-            <img src="/logo.png" alt="Logo" className="h-20" />
+            <Box component="img" src="/logo.png" alt="Logo" sx={{ height: 80 }} />
           </Link>
 
           {/* Search Bar */}
-          <div className="relative w-1/2">
+          <Box sx={{ position: "relative", width: "50%" }}>
             <InputBase
               placeholder="Search Products …"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-gray-200 rounded-full py-2 px-4 w-full"
+              sx={{
+                backgroundColor: "#e0e0e0",
+                borderRadius: 50,
+                padding: "8px 16px",
+                width: "100%",
+              }}
               inputProps={{ "aria-label": "search" }}
             />
             <IconButton
-              className="absolute right-0 top-0 mt-1 mr-1"
+              sx={{ position: "absolute", right: 0, top: 0, margin: 1 }}
               onClick={handleSearch}
             >
               {loading ? <CircularProgress size={24} /> : <SearchIcon />}
@@ -77,62 +82,96 @@ const Header = () => {
 
             {/* Search Results Dropdown */}
             {searchResults.length > 0 && searchTerm && (
-              <div className="absolute top-full mt-1 w-full bg-white rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  marginTop: 1,
+                  width: "100%",
+                  backgroundColor: "white",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  zIndex: 10,
+                  maxHeight: 240,
+                  overflowY: "auto",
+                }}
+              >
                 {searchResults.map((product) => (
                   <Link
                     href={`/products/${product._id}`}
                     key={product._id}
                     legacyBehavior
                   >
-                    <a className="flex p-2 hover:bg-gray-100 text-gray-800">
-                      <img
+                    <a style={{ display: "flex", padding: "8px", color: "#4a4a4a", textDecoration: "none", alignItems: "center" }}>
+                      <Box
+                        component="img"
                         src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${product.images[0]}`}
                         alt={product.name}
-                        className="w-7 h-7 object-cover rounded-md mr-2"
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          objectFit: "cover",
+                          borderRadius: 1,
+                          marginRight: 1,
+                        }}
                       />
                       {product.name}
                     </a>
                   </Link>
                 ))}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
 
           {/* Cart Icon */}
-          <IconButton color="inherit" className="text-black">
-            <Link href="/cart" className="relative">
+          <IconButton color="inherit" sx={{ color: "black" }}>
+            <Link href="/cart" style={{ position: "relative" }}>
               <ShoppingCartOutlinedIcon />
               {isMounted && totalQuantity > 0 && (
-                <span className="absolute top-0 right-0 inline-block w-4 h-4 text-xs font-semibold text-white bg-red-600 rounded-full text-center">
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    width: 16,
+                    height: 16,
+                    fontSize: 10,
+                    fontWeight: "bold",
+                    backgroundColor: "#d32f2f",
+                    color: "white",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   {totalQuantity}
-                </span>
+                </Box>
               )}
             </Link>
           </IconButton>
 
-          <Link href={`/bulkOrder`} passHref>
-                <Button
-                  size="small"
-                  sx={{
-                    color: "white",
-                    background:
-                      "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
-                    borderRadius: 25,
-                    boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
-                    padding: "10px 20px",
-                    fontWeight: "bold",
-                    transition: "0.3s ease",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
-                      transform: "scale(1.05)",
-                      boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
-                    },
-                  }}
-                >
-                  Bulk Order
-                </Button>
-              </Link>
+          <Link href="/bulkOrder" passHref>
+            <Button
+              size="small"
+              sx={{
+                color: "white",
+                background: "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
+                borderRadius: 25,
+                boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
+                padding: "10px 20px",
+                fontWeight: "bold",
+                transition: "0.3s ease",
+                "&:hover": {
+                  background: "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
+                  transform: "scale(1.05)",
+                  boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
+                },
+              }}
+            >
+              Bulk Order
+            </Button>
+          </Link>
         </Toolbar>
       </AppBar>
     </header>
