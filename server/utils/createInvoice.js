@@ -1,7 +1,7 @@
 const PDFDocument = require("pdfkit");
 
 const createInvoice = (order) => {
-  const doc = new PDFDocument();
+  const doc = new PDFDocument({ margin: 50 });
   let buffers = [];
 
   // Capture the PDF output in a buffer
@@ -20,49 +20,50 @@ const createInvoice = (order) => {
   doc.text(`Email: ${order.customer.email}`, { align: "left" });
   doc.text(`Phone: ${order.customer.phone}`, { align: "left" });
   doc.text(`Order Date: ${order.createdAt.toLocaleDateString()}`, { align: "left" });
-  doc.moveDown();
+  doc.moveDown(1.5);
 
-  // Add a table-like layout for order details
+  // Order Details Section
   doc.fillColor("#000").fontSize(18).text("Order Details", { underline: true });
   doc.moveDown();
 
-  // Draw table headers
-  const headers = ["Product", "Quantity", "Price", "Total"];
+  // Table Headers
+  const headers = ["Product", "Quantity", "Price (₹)", "Total (₹)"];
   const headerHeight = 20;
   const rowHeight = 25;
-  const tableTop = doc.y;
+  const startX = 50;
+  const startY = doc.y;
 
-  // Draw the header
-  headers.forEach((header, index) => {
-    doc.rect(50 + index * 120, tableTop, 120, headerHeight).fill("#4A90E2").stroke();
-    doc.fillColor("#fff").text(header, 50 + index * 120 + 10, tableTop + 5);
+  // Draw Header
+  headers.forEach((header, i) => {
+    doc.rect(startX + i * 120, startY, 120, headerHeight).fill("#4A90E2").stroke();
+    doc.fillColor("#fff").fontSize(14).text(header, startX + i * 120 + 10, startY + 5);
   });
 
-  let y = tableTop + headerHeight;
-  
-  // Products Table
+  // Table Rows
+  let y = startY + headerHeight + 5; // Add spacing below headers
   order.products.forEach((item) => {
-    const { product, quantity } = item; // Destructure product and quantity
+    const { product, quantity } = item;
 
     if (product) {
-      doc.fillColor("#000").text(product.name, 50, y);
-      doc.text(quantity, 170, y);
-      doc.text(`₹${product.salePrice.toFixed(2)}`, 290, y);
-      doc.text(`₹${(product.salePrice * quantity).toFixed(2)}`, 410, y);
+      doc.fillColor("#000").fontSize(12).text(product.name, startX + 10, y);
+      doc.text(quantity, startX + 130, y);
+      doc.text(`₹${product.salePrice.toFixed(2)}`, startX + 250, y);
+      doc.text(`₹${(product.salePrice * quantity).toFixed(2)}`, startX + 370, y);
       y += rowHeight;
     }
   });
 
-  // Draw total amount
-  doc.moveDown();
-  doc.fillColor("#333").fontSize(16).text(`Total Amount: ₹${order.totalAmount.toFixed(2)}`, { align: "right" });
+  // Total Amounts
+  doc.moveDown(1.5);
+  doc.fillColor("#333").fontSize(16);
+  doc.text(`Total Amount: ₹${order.totalAmount.toFixed(2)}`, { align: "right" });
   doc.text(`Shipping Charge: ₹${order.shippingCharge.toFixed(2)}`, { align: "right" });
-  doc.text(`Grand Total: ₹${order.totalAmount.toFixed(2)}`, { align: "right", underline: true });
+  doc.text(`Grand Total: ₹${(order.totalAmount + order.shippingCharge).toFixed(2)}`, { align: "right", underline: true });
   
   // Finalize the document
   doc.end();
 
-  // Wait for the 'end' event to resolve the promise
+  // Return the PDF as a buffer
   return new Promise((resolve) => {
     doc.on("end", () => resolve(Buffer.concat(buffers)));
   });

@@ -75,23 +75,13 @@ exports.createOrder = async (req, res) => {
         .json({ message: "Failed to send invoice email to the customer" });
     }
 
-    // Step 1: Create a dictionary from existingProducts for quick lookup
-    const productMap = existingProducts.reduce((map, product) => {
-      map[product._id.toString()] = product;
-      return map;
-    }, {});
-
-    // Step 2: Map over order.products and use the dictionary for product details
-    const productDetails = order.products
-      .map((item) => {
-        const product = productMap[item.product.toString()]; // Quick lookup in productMap
-        return product
-          ? `- ${product.name} (Quantity: ${
-              item.quantity
-            }, Unit Price: ₹${product.salePrice.toFixed(2)})`
-          : "";
-      })
-      .join("\n");
+ // Format product details from order.products array
+ const productDetails = order.products
+ .map(
+   (item) =>
+     `Product: ${item.product.name}\nPrice: ₹${item.product.salePrice.toFixed(2)}\nQuantity: ${item.quantity}`
+ )
+ .join("\n\n");
 
     try {
       await sendEmail({
