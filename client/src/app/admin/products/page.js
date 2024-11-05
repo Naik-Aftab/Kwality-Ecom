@@ -321,7 +321,7 @@ export default function AdminProductList() {
                   <TableCell>
                     {product.images && product.images.length > 0 ? (
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${product.images[0]}`}
+                        src={`${product.images[0]}`}
                         alt={product.name}
                         width={50}
                       />

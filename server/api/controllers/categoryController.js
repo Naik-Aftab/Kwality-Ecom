@@ -1,12 +1,22 @@
 const Category = require('../../models/Category');
 const Product = require('../../models/Product');
-
-// @desc    Create a new category
+const cloudinary = require('../../config/cloudinary');
+// @desc    Create a new category 
 // @route   POST /api/categories
 exports.createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Check if an image was uploaded
+    // const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Check if an image was uploaded
+
+    let imagePath = null;
+
+    // Upload image to Cloudinary if provided
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "categories",
+      });
+      imagePath = result.secure_url;
+    }
 
     const newCategory = new Category({
       name,
@@ -75,7 +85,17 @@ exports.getAllProductsByCategory = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined; // Update image if uploaded
+    // const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined; // Update image if uploaded
+
+    let imagePath;
+
+    // Upload new image to Cloudinary if provided
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "categories",
+      });
+      imagePath = result.secure_url;
+    }
 
     const updatedFields = { name, description };
     if (imagePath) {

@@ -1,4 +1,5 @@
 const Product = require('../../models/Product');
+const cloudinary = require('../../config/cloudinary');
 
 /// @desc    Create new product
 // @route   POST /api/products
@@ -6,7 +7,20 @@ exports.createProduct = async (req, res) => {
   try {
     const { name, regularPrice, salePrice, description, category, stock, weight } = req.body;
     // Collect image file paths
-    const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    // const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+
+     // Collect image file paths
+     let imagePaths = [];
+
+     if (req.files && req.files.length > 0) {
+       // Upload images to Cloudinary
+       const uploadPromises = req.files.map(file => {
+         return cloudinary.uploader.upload(file.path, {
+           folder: "products"
+         }).then(result => result.secure_url);
+       });
+       imagePaths = await Promise.all(uploadPromises);
+     }
 
     // Create new product with regular price and optional sale price
     const newProduct = new Product({
@@ -88,10 +102,21 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Update product details
-    if (req.files && req.files.length > 0) {
+    // if (req.files && req.files.length > 0) {
+    //   // If new images are uploaded, replace the old ones
+    //   const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    //   product.images = imagePaths;
+    // }
+
+     // Update product details
+     if (req.files && req.files.length > 0) {
       // If new images are uploaded, replace the old ones
-      const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-      product.images = imagePaths;
+      const uploadPromises = req.files.map(file => {
+        return cloudinary.uploader.upload(file.path, {
+          folder: "products"
+        }).then(result => result.secure_url);
+      });
+      product.images = await Promise.all(uploadPromises);
     }
 
     product.name = name || product.name;

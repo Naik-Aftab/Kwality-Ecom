@@ -205,7 +205,7 @@ export default function AdminCategoryList() {
                   <TableCell>
                     {category.image && (
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${category.image}`}
+                        src={`${category.image}`}
                         alt={category.name}
                         width={60}
                       />
