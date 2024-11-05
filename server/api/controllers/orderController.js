@@ -78,6 +78,19 @@ exports.createOrder = async (req, res) => {
 
 
     try {
+ // Format products for email message
+ const productsList = populatedOrder.products
+ .map((item) => {
+   const { product, quantity } = item;
+   return `
+     Product Name: ${product.name}
+     Quantity: ${quantity}
+     Price per Unit: ₹${product.salePrice.toFixed(2)}
+     Total: ₹${(product.salePrice * quantity).toFixed(2)}
+   `;
+ })
+ .join("\n\n");
+
       await sendEmail({
         email: process.env.Admin_Email_Id,
         subject: "New Order Created",
@@ -88,6 +101,7 @@ exports.createOrder = async (req, res) => {
       \n\nOrder Details:
       \nTotal Amount: ₹${order.totalAmount.toFixed(2)}
       \nShipping Charge: ₹${order.shippingCharge.toFixed(2)}
+      \n\nProducts:\n${productsList}
       \n\nThank you,
       \nKwality Ecom Team
     `,
