@@ -36,6 +36,9 @@ app.use('/customers', customerRoutes);  // Customers
 app.use('/metrics', metricsRoutes);     // Metrics routes
 app.use('/porter', porterRoutes);     // Metrics routes
 
+app.get('/', (req, res) => {
+  res.send('Hello, Kwality-Ecommerce Server!');
+});
 
 // const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => {
