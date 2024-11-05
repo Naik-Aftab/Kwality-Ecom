@@ -75,13 +75,7 @@ exports.createOrder = async (req, res) => {
         .json({ message: "Failed to send invoice email to the customer" });
     }
 
- // Format product details from order.products array
- const productDetails = order.products
- .map(
-   (item) =>
-     `Product: ${item.product.name}\nPrice: ₹${item.product.salePrice.toFixed(2)}\nQuantity: ${item.quantity}`
- )
- .join("\n\n");
+
 
     try {
       await sendEmail({
@@ -94,7 +88,6 @@ exports.createOrder = async (req, res) => {
       \n\nOrder Details:
       \nTotal Amount: ₹${order.totalAmount.toFixed(2)}
       \nShipping Charge: ₹${order.shippingCharge.toFixed(2)}
-      \n\nProducts:\n${productDetails}
       \n\nThank you,
       \nKwality Ecom Team
     `,

@@ -27,7 +27,7 @@ const createInvoice = (order) => {
   doc.moveDown();
 
   // Table Headers
-  const headers = ["Product", "Quantity", "Price (₹)", "Total (₹)"];
+  const headers = ["Product", "Quantity", "Price", "Total"];
   const headerHeight = 20;
   const rowHeight = 25;
   const startX = 50;
@@ -47,8 +47,8 @@ const createInvoice = (order) => {
     if (product) {
       doc.fillColor("#000").fontSize(12).text(product.name, startX + 10, y);
       doc.text(quantity, startX + 130, y);
-      doc.text(`₹${product.salePrice.toFixed(2)}`, startX + 250, y);
-      doc.text(`₹${(product.salePrice * quantity).toFixed(2)}`, startX + 370, y);
+      doc.text(`${product.salePrice.toFixed(2)}`, startX + 250, y);
+      doc.text(`${(product.salePrice * quantity).toFixed(2)}`, startX + 370, y);
       y += rowHeight;
     }
   });
@@ -56,9 +56,9 @@ const createInvoice = (order) => {
   // Total Amounts
   doc.moveDown(1.5);
   doc.fillColor("#333").fontSize(16);
-  doc.text(`Total Amount: ₹${order.totalAmount.toFixed(2)}`, { align: "right" });
-  doc.text(`Shipping Charge: ₹${order.shippingCharge.toFixed(2)}`, { align: "right" });
-  doc.text(`Grand Total: ₹${(order.totalAmount + order.shippingCharge).toFixed(2)}`, { align: "right", underline: true });
+  doc.text(`Total Amount: Rs ${order.totalAmount.toFixed(2)}`, { align: "right" });
+  doc.text(`Shipping Charge: Rs ${order.shippingCharge.toFixed(2)}`, { align: "right" });
+  doc.text(`Grand Total: Rs ${(order.totalAmount + order.shippingCharge).toFixed(2)}`, { align: "right", underline: true });
   
   // Finalize the document
   doc.end();
