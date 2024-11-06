@@ -55,7 +55,7 @@ const Cart = () => {
                     <div className="flex items-center">
                       
                         <img
-                          src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`}
+                          src={`${item.image}`}
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-lg"
                           onError={(e) => { e.target.style.display = 'none'; }}

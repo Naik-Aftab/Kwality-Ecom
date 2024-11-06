@@ -105,7 +105,7 @@ const Header = () => {
                     <a style={{ display: "flex", padding: "8px", color: "#4a4a4a", textDecoration: "none", alignItems: "center" }}>
                       <Box
                         component="img"
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${product.images[0]}`}
+                        src={`${product.images[0]}`}
                         alt={product.name}
                         sx={{
                           width: 28,

@@ -333,7 +333,7 @@ const Checkout = () => {
                 >
                   <div className="flex items-center">
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${item.image}`}
+                      src={`${item.image}`}
                       alt={item.name}
                       className="w-16 h-16 object-cover rounded-lg mr-4"
                     />

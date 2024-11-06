@@ -65,7 +65,7 @@ const ProductDetail = () => {
         {/* Image Section */}
         <div className="w-full lg:w-1/2 flex justify-center items-center">
           <img
-            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${product.images[0]}`} // Assuming the first image is the one you want to show
+            src={`${product.images[0]}`} // Assuming the first image is the one you want to show
             alt={product.name}
             className="w-full h-auto rounded-lg shadow-lg object-cover transition-transform duration-300 transform hover:scale-105"
           />
