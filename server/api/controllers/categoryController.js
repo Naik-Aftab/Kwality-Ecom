@@ -89,8 +89,19 @@ exports.updateCategory = async (req, res) => {
 
     let imagePath;
 
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
     // Upload new image to Cloudinary if provided
     if (req.file) {
+
+      if (category.image) {
+        const publicId = category.image.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`categories/${publicId}`);
+      }
+
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "categories",
       });
@@ -128,6 +139,12 @@ exports.deleteCategory = async (req, res) => {
 
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
+    }
+
+     // Delete image from Cloudinary if it exists
+     if (category.image) {
+      const publicId = category.image.split('/').pop().split('.')[0];
+      await cloudinary.uploader.destroy(`categories/${publicId}`);
     }
 
     res.status(204).json(); // No content to return on successful delete

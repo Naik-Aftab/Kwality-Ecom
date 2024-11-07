@@ -144,13 +144,13 @@ export default function OrderDetailModal({
               <TableBody>
                 {order.products.map((item) => (
                   <TableRow key={item.product._id}>
-                    <TableCell>{item.product.name}</TableCell>
+                    <TableCell>{item.name}</TableCell>
                     <TableCell align="right">
-                      ₹ {item.product.salePrice}
+                      ₹ {item.price}
                     </TableCell>
                     <TableCell align="right">{item.quantity}</TableCell>
                     <TableCell align="right">
-                      ₹ {item.product.salePrice * item.quantity}
+                      ₹ {item.price * item.quantity}
                     </TableCell>
                   </TableRow>
                 ))}

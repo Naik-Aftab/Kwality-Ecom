@@ -70,7 +70,7 @@ export const ProductList = () => {
               height="200"
               image={`${product.images[0]}`}
               alt={product.name}
-              sx={{ objectFit: "cover" }}
+              // sx={{ objectFit: "cover" }}
             />
             <CardContent sx={{ flexGrow: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: "bold" }}>

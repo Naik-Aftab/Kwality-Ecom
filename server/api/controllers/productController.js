@@ -108,8 +108,18 @@ exports.updateProduct = async (req, res) => {
     //   product.images = imagePaths;
     // }
 
-     // Update product details
-     if (req.files && req.files.length > 0) {
+    // Replace images if new ones are uploaded
+    if (req.files && req.files.length > 0) {
+
+       // Delete existing images from Cloudinary
+       if (product.images && product.images.length > 0) {
+        const deletePromises = product.images.map(imgUrl => {
+          const publicId = imgUrl.split('/').pop().split('.')[0];
+          return cloudinary.uploader.destroy(`products/${publicId}`);
+        });
+        await Promise.all(deletePromises);
+      }
+
       // If new images are uploaded, replace the old ones
       const uploadPromises = req.files.map(file => {
         return cloudinary.uploader.upload(file.path, {
@@ -145,11 +155,22 @@ exports.updateProduct = async (req, res) => {
 // @route   DELETE /api/products/:id
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    // console.log(`Deleted product with ID: ${req.params.id}`);
+
+    // Delete associated images from Cloudinary
+    if (product.images && product.images.length > 0) {
+      const deletePromises = product.images.map(imgUrl => {
+        const publicId = imgUrl.split('/').pop().split('.')[0];
+        return cloudinary.uploader.destroy(`products/${publicId}`);
+      });
+      await Promise.all(deletePromises);
+    }
+    // Delete the product from the database
+    await Product.findByIdAndDelete(req.params.id);
+
     res.status(200).json({ message: 'Product deleted' });
   } catch (error) {
     console.error('Error deleting product:', error.message);

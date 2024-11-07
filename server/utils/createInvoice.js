@@ -42,13 +42,13 @@ const createInvoice = (order) => {
   // Table Rows
   let y = startY + headerHeight + 5; // Add spacing below headers
   order.products.forEach((item) => {
-    const { product, quantity } = item;
+    const { product, name, price, quantity } = item;
 
     if (product) {
-      doc.fillColor("#000").fontSize(12).text(product.name, startX + 10, y);
+      doc.fillColor("#000").fontSize(12).text(name, startX + 10, y);
       doc.text(quantity, startX + 130, y);
-      doc.text(`${product.salePrice.toFixed(2)}`, startX + 250, y);
-      doc.text(`${(product.salePrice * quantity).toFixed(2)}`, startX + 370, y);
+      doc.text(`${price.toFixed(2)}`, startX + 250, y);
+      doc.text(`${(price * quantity).toFixed(2)}`, startX + 370, y);
       y += rowHeight;
     }
   });

@@ -7,6 +7,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const categoryRoutes = require('./routes/category');
 const productRoutes = require('./routes/product');
+const customproductRoutes = require('./routes/customproduct');
 const orderRoutes = require('./routes/order');
 const customerRoutes = require('./routes/customer');
 const metricsRoutes = require('./routes/metrics');
@@ -20,9 +21,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Apply logger middleware
-app.use(loggerMiddleware);
-
+// Apply logger middleware only in development
+if (process.env.NODE_ENV === 'development') {
+  app.use(loggerMiddleware);
+}
 // Serve uploaded images as static files
 app.use("/uploads", express.static("public/uploads"));
 
@@ -31,6 +33,7 @@ app.use("/uploads", express.static("public/uploads"));
 app.use('/auth', authRoutes);           // Auth routes
 app.use('/categories', categoryRoutes); // Category routes
 app.use('/products', productRoutes);    // Product routes
+app.use('/custom-products', customproductRoutes);    // Product routes
 app.use('/orders', orderRoutes);        // Order routes
 app.use('/customers', customerRoutes);  // Customers
 app.use('/metrics', metricsRoutes);     // Metrics routes
@@ -40,9 +43,9 @@ app.get('/', (req, res) => {
   res.send('Hello, Kwality-Ecommerce Server!');
 });
 
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 module.exports = app;

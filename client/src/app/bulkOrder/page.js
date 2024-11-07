@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import axios from "axios";
 import { addToCart } from "@/store/slices/cartSlice";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -9,96 +10,107 @@ import Alert from "@mui/material/Alert";
 
 const BulkOrder = () => {
   const dispatch = useDispatch();
-
-  // Static product data
-  const product = {
-    id: 100,
-    name: "Chicken Curry Cut",
-    description: "Experience rich and authentic flavors with our Chicken Curry Cut, prepared to bring out the best in every dish. Sourced from premium quality chicken, each piece is meticulously cut for a seamless cooking experience. Perfect for bulk orders, this option allows you to buy in larger quantities for gatherings, celebrations, or just to stock up. Choose from our weight options – 2kg, 5kg, 10kg, and 20kg – with affordable pricing per kilogram. Convenient and fresh, it's an ideal choice for family meals or catering needs.",
-    image: "/Product-Img/chi-curry.png",
-    pricing: {
-      2: 400,
-      5: 800,
-      10: 1200,
-      20: 1500,
-    },
-  };
-
+  const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [weight, setWeight] = useState(2); // Default weight
-  const [price, setPrice] = useState(400); // Initial price for 2kg
+  const [selectedWeight, setSelectedWeight] = useState(null); // Track selected weight
+  const [price, setPrice] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  // Fetch the latest product from the API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/custom-products`
+        );
+        const latestProduct = response.data.products[response.data.products.length - 1];
+        console.log("Product", latestProduct);
+        setProduct(latestProduct);
+
+        // Set initial weight and price if variations are available
+        if (latestProduct.variations && latestProduct.variations.length > 0) {
+          const initialWeight = latestProduct.variations[0];
+          setSelectedWeight(initialWeight.weight);
+          setPrice(initialWeight.price);
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+    fetchProduct();
+  }, []);
 
   const handleQuantityChange = (increment) => {
     setQuantity((prev) => Math.max(1, prev + increment));
   };
 
-  const handleWeightChange = (newWeight) => {
-    setWeight(newWeight);
-    setPrice(product.pricing[newWeight] * quantity);
+  const handleWeightChange = (variation) => {
+    setSelectedWeight(variation.weight);
+    setPrice(variation.price * quantity); // Update price based on selected variation and quantity
   };
 
-  // Handle add to cart
   const handleAddToCart = () => {
-    const cartItem = {
-        id: product.id,
-        name: product.name +" - "+ weight + "Kg" ,
+    if (product) {
+      const cartItem = {
+        id: product._id,
+        name: `${product.name} - ${selectedWeight}Kg`,
         description: product.description,
         price,
-        weight,
+        weight: selectedWeight,
         quantity,
-        image: product.image,
-    };
+        image: product.images[0],
+      };
 
-    dispatch(addToCart(cartItem));
-    setSnackbarOpen(true); // Show success message
+      dispatch(addToCart(cartItem));
+      setSnackbarOpen(true); // Show success message
+    }
   };
 
-  // Close snackbar
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
+  if (!product) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row space-y-10 lg:space-y-0 lg:space-x-10">
-          {/* Product Image */}
           <div className="w-full lg:w-1/2">
             <img
-              src={product.image}
+              src={product.images[0]}
               alt={product.name}
               className="w-full h-auto rounded-lg shadow-lg"
             />
           </div>
 
-          {/* Product Details */}
           <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-lg">
             <h1 className="text-3xl font-semibold mb-4">{product.name}</h1>
             <p className="text-gray-600 mb-4">{product.description}</p>
-            {/* Bulk Order Options */}
+
             <div className="flex space-x-4">
-              {[2, 5, 10, 20].map((w) => (
+              {product.variations.map((variation) => (
                 <button
-                  key={w}
-                  onClick={() => handleWeightChange(w)}
+                  key={variation._id}
+                  onClick={() => handleWeightChange(variation)}
                   className={`${
-                    weight === w
+                    selectedWeight === variation.weight
                       ? "bg-blue-500 text-white"
                       : "bg-gray-300 text-black"
                   } px-4 py-2 rounded`}
                 >
-                  {w} kg
+                  {variation.weight} kg
                 </button>
               ))}
-
             </div>
 
-<div className="mt-4">  <p className="text-xl font-bold">Price : ₹{price}</p>
-</div>
+            <div className="mt-4">
+              <p className="text-xl font-bold">Price : ₹{price}</p>
+            </div>
 
-            {/* Quantity Controls and Add to Cart */}
             <div className="flex items-center space-x-4 mt-4">
               <button
                 onClick={() => handleQuantityChange(-1)}
@@ -124,7 +136,6 @@ const BulkOrder = () => {
         </div>
       </div>
 
-      {/* Snackbar for product added to cart */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

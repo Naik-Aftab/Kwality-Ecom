@@ -104,6 +104,8 @@ const Checkout = () => {
         customer: customerId,
         products: cartItems.map((item) => ({
           product: item.id,
+          name: item.name,
+          price: item.price,
           quantity: item.quantity,
         })),
         totalQuantity,

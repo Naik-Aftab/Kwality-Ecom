@@ -12,13 +12,26 @@ const orderSchema = new mongoose.Schema({
     {
       product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+        refPath: 'products.productModel', // This will dynamically resolve the reference to Product or CustomProduct
+        required: true
+      },
+      productModel: {
+        type: String,
+        enum: ['Product', 'CustomProduct'], // Specifies which collection the product belongs to
         required: true
       },
       quantity: {
         type: Number,
         required: true
-      }
+      },
+      name: {
+        type: String,
+        required: true, 
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
     }
   ],
   totalAmount: {

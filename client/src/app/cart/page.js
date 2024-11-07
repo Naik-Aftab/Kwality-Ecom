@@ -14,6 +14,7 @@ const Cart = () => {
   const totalQuantity = useSelector((state) => state.cart.totalQuantity);
   const dispatch = useDispatch();
 
+  // console.log("cartItems: ",cartItems)
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 

@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema({
   },
   salePrice: { 
     type: Number, 
-    required: false
+    required: true
   },
   category: { 
     type: mongoose.Schema.Types.ObjectId, 

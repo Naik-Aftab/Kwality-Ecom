@@ -107,7 +107,7 @@ const CategoryProducts = () => {
           <CardMedia
             component="img"
             height="200"
-            image={`${process.env.NEXT_PUBLIC_API_BASE_URL}${product.images[0]}`}
+            image={`${product.images[0]}`}
             alt={product.name}
             sx={{ objectFit: "cover" }}
           />

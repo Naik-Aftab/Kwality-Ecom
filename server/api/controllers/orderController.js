@@ -1,5 +1,7 @@
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
+const CustomProduct = require("../../models/CustomProduct");
+
 const Customer = require("../../models/Customer");
 const createInvoice = require("../../utils/createInvoice");
 const sendEmail = require("../../utils/sendMail");
@@ -16,21 +18,47 @@ exports.createOrder = async (req, res) => {
     if (!existingCustomer) {
       return res.status(400).json({ message: "Customer does not exist" });
     }
+    // Initialize an empty array to hold the updated products with productModel
+    const updatedProducts = [];
 
-    // // Check if all products exist
-    const productIds = products.map((item) => item.product); // Ensure we use item.product
-    const existingProducts = await Product.find({ _id: { $in: productIds } });
+    // Loop through each product to check and assign the productModel
+    for (let item of products) {
+      const productId = item.product; // Extract product ID
+      let productModel;
 
-    // Validate product existence
-    if (existingProducts.length !== products.length) {
-      return res
-        .status(400)
-        .json({ message: "One or more products do not exist" });
+      // Check if the product exists in the Product collection
+      const existingProduct = await Product.findById(productId);
+      if (existingProduct) {
+        productModel = "Product";
+      } else {
+        // If not found in Product, check the CustomProduct collection
+        const existingCustomProduct = await CustomProduct.findById(productId);
+        if (existingCustomProduct) {
+          productModel = "CustomProduct";
+        }
+      }
+
+      // If neither Product nor CustomProduct was found, return an error
+      if (!productModel) {
+        return res.status(400).json({
+          message: `Product with ID ${productId} does not exist in Product or CustomProduct collections`,
+        });
+      }
+
+      // Add the product to the updatedProducts array with the correct productModel
+      updatedProducts.push({
+        product: productId,
+        productModel: productModel,
+        quantity: item.quantity,
+        name: item.name,
+        price: item.price,
+      });
     }
+
     // Create a new order
     const order = await Order.create({
       customer,
-      products,
+      products: updatedProducts,
       totalAmount,
       paymentMethod,
       shippingCharge,
@@ -38,15 +66,18 @@ exports.createOrder = async (req, res) => {
 
     // Optionally, fetch the complete order data with populated fields
     const populatedOrder = await Order.findById(order._id)
-      .populate("customer") // Populate the customer details
-      .populate("products.product"); // Assuming 'products' contains an array of objects with 'product' referencing Product
+      .populate("customer")
+      .populate({
+        path: "products.product",
+        refPath: "products.productModel",
+      });
 
     // Log the populated order data
     console.log("Populated Order:", populatedOrder);
     console.log("Products in Order:", populatedOrder.products);
     console.log("Customer in Order:", populatedOrder.customer);
 
-    let buffer;
+    // let buffer;
     try {
       // Generate invoice as a PDF buffer
       buffer = await createInvoice(populatedOrder); // Now returns a buffer
@@ -75,27 +106,24 @@ exports.createOrder = async (req, res) => {
         .json({ message: "Failed to send invoice email to the customer" });
     }
 
-
-
     try {
- // Format products for email message
- const productsList = populatedOrder.products
- .map((item) => {
-   const { product, quantity } = item;
-   return `
-     Product Name: ${product.name}
+      // Format products for email message
+      const productsList = populatedOrder.products
+        .map((item) => {
+          const { name, price, quantity } = item;
+          return `
+     Product Name: ${name}
      Quantity: ${quantity}
-     Price per Unit: ₹${product.salePrice.toFixed(2)}
-     Total: ₹${(product.salePrice * quantity).toFixed(2)}
+     Price per Unit: ₹${price.toFixed(2)}
+     Total: ₹${(price * quantity).toFixed(2)}
    `;
- })
- .join("\n\n");
+        })
+        .join("\n\n");
 
       await sendEmail({
         email: process.env.Admin_Email_Id,
         subject: "New Order Created",
-        message: `
-      A new order (Order #${order._id}) has been placed by ${
+        message: `A new order (Order #${order._id}) has been placed by ${
           existingCustomer.fullName
         }.
       \n\nOrder Details:
@@ -103,8 +131,7 @@ exports.createOrder = async (req, res) => {
       \nShipping Charge: ₹${order.shippingCharge.toFixed(2)}
       \n\nProducts:\n${productsList}
       \n\nThank you,
-      \nKwality Ecom Team
-    `,
+      \nKwality Ecom Team `,
       });
     } catch (error) {
       console.error("Error sending email to admin:", error.message);
@@ -116,14 +143,7 @@ exports.createOrder = async (req, res) => {
     // Respond with the created order
     res.status(201).json({
       _id: order._id,
-      orderId: order.orderId,
-      customer: order.customer,
-      products: order.products,
-      totalAmount: order.totalAmount,
-      shippingCharge: order.shippingCharge,
-      paymentMethod: order.paymentMethod,
-      status: order.status,
-      createdAt: order.createdAt,
+      message: "Order created successfully",
     });
   } catch (error) {
     console.error("Error creating order:", error.message);
