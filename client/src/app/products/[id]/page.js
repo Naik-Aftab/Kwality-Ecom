@@ -9,7 +9,10 @@ import { addToCart } from "@/store/slices/cartSlice";
 import Header from "@/components/header";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Typography from "@mui/material/Typography";
 import Footer from "@/components/footer";
+import BoltIcon from "@mui/icons-material/Bolt";
+
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -84,12 +87,22 @@ const ProductDetail = () => {
                   .filter(Boolean)
                   .join(" | ")}
               </p>
+      
             <p className="text-gray-700 mb-4">{product.description}</p>
-            <div className="mb-6 flex items-center">
-              <span className="text-gray-500 line-through mr-2">
+            <Typography
+                variant="body2"
+                sx={{ color: "green", fontWeight: "bold", mb:"4px" }}
+              >
+                {" "}
+                <BoltIcon sx={{ color: "yellow" }} />
+                Get Delivered in 2 Hours
+              </Typography>
+
+            <div className="mb-4 flex items-center">
+              <span className="text-xl text-gray-500 line-through mr-2">
                 ₹{product.regularPrice}
               </span>
-              <span className="text-xl font-semibold text-red-600">
+              <span className="text-2xl font-semibold text-red-600">
                 ₹{product.salePrice}
               </span>
             </div>

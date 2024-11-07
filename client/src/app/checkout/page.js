@@ -136,6 +136,7 @@ const Checkout = () => {
       // Step 3: Call Porter API to create order
       const porterOrderData = {
         request_id: orderResponse.data._id,
+        email_id: customerResponse.data.customer.email,
         drop_details: {
           address: {
             apartment_address: addressComponents.apartment_address,
@@ -148,29 +149,29 @@ const Checkout = () => {
             lng: addressComponents.longitude,
             contact_details: {
               name: customerResponse.data.customer.fullName,
-              phone_number: customerResponse.data.customer.phone,
+              phone_number: `+91${customerResponse.data.customer.phone}`,
             },
           },
         },
       };
 
-      // let porterResponse;
-      // try {
-      //   porterResponse = await axios.post(`
-      //     ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
-      //     porterOrderData
-      //   );
-      // } catch (error) {
-      //   console.error("Error creating Porter order:", error);
-      //   await Swal.fire({
-      //     title: "Error",
-      //     text: "Failed to schedule delivery. Please try again.",
-      //     icon: "error",
-      //   });
-      //   return;
-      // }
+      let porterResponse;
+      try {
+        porterResponse = await axios.post(`
+          ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
+          porterOrderData
+        );
+      } catch (error) {
+        console.error("Error creating Porter order:", error);
+        await Swal.fire({
+          title: "Error",
+          text: "Failed to schedule delivery. Please try again.",
+          icon: "error",
+        });
+        return;
+      }
 
-      // console.log("porterResponse", porterResponse);
+      console.log("porterResponse", porterResponse);
 
       // SweetAlert confirmation on success
       await Swal.fire({

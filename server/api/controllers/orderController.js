@@ -128,7 +128,6 @@ exports.createOrder = async (req, res) => {
         }.
       \n\nOrder Details:
       \nTotal Amount: ₹${order.totalAmount.toFixed(2)}
-      \nShipping Charge: ₹${order.shippingCharge.toFixed(2)}
       \n\nProducts:\n${productsList}
       \n\nThank you,
       \nKwality Ecom Team `,

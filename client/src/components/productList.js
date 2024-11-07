@@ -46,8 +46,9 @@ export const ProductList = () => {
         Top Selling Products
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
-        {console.log("products", products)}
+        {/* {console.log("products", products)} */}
         {products.map((product) => (
+          <Link href={`/products/${product._id}`} passHref>
           <Card
             key={product._id}
             sx={{
@@ -117,7 +118,7 @@ export const ProductList = () => {
                 Get Delivered in 2 Hours
               </Typography>
 
-              <Link href={`/products/${product._id}`} passHref>
+              
                 <Button
                   size="small"
                   sx={{
@@ -138,12 +139,13 @@ export const ProductList = () => {
                     },
                   }}
                 >
-                  Order Now
+                  Add To Cart
                 </Button>
-              </Link>
+              
             </CardContent>
            
           </Card>
+          </Link>
         ))}
       </div>
     </div>

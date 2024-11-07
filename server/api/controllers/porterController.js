@@ -1,8 +1,9 @@
 const axios = require('axios');
+const sendEmail = require("../../utils/sendMail");
 
 // Create Order Function
 const createOrder = async (req, res) => {
-  const { request_id, drop_details } = req.body;
+  const { request_id, drop_details, email_id } = req.body;
   console.log("porter Response", req.body)
 
   // Static details for the pickup address and delivery instructions
@@ -41,6 +42,21 @@ const createOrder = async (req, res) => {
         },
       }
     );
+
+    try {     
+      
+      const trackingUrl = response.data.tracking_url;
+      await sendEmail({
+        email: email_id,
+        subject: "Your Order Tracking URL",
+        message: `Thank you for your order! You can track your order here: ${trackingUrl}`,
+      });
+    } catch (error) {
+      console.error("Error sending email to user for tracking:", error.message);
+      return res
+        .status(500)
+        .json({ message: "Failed to send tracking notification email to the User" });
+    }
 
     // Return the response from the Porter API
     res.status(200).json(response.data);

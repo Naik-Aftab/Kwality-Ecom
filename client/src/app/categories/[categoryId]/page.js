@@ -87,6 +87,7 @@ const CategoryProducts = () => {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
         {products.map((product) => (
+          <Link href={`/products/${product._id}`} passHref>
           <Card
           key={product._id}
           sx={{
@@ -156,7 +157,6 @@ const CategoryProducts = () => {
               Get Delivered in 2 Hours
             </Typography>
 
-            <Link href={`/products/${product._id}`} passHref>
               <Button
                 size="small"
                 sx={{
@@ -177,16 +177,15 @@ const CategoryProducts = () => {
                   },
                 }}
               >
-                Order Now
-              </Button>
-            </Link>
-          </CardContent>
-         
+                Add To Cart
+              </Button>            
+          </CardContent>         
         </Card>
+        </Link>
         ))}
       </div>
     </div>
-    <footer/>
+    <Footer/>
     </>
   );
 };
