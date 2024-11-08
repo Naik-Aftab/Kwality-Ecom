@@ -5,10 +5,8 @@ const cloudinary = require('../../config/cloudinary');
 // @route   POST /api/products
 exports.createProduct = async (req, res) => {
   try {
-    const { name, regularPrice, salePrice, description, category, stock, weight } = req.body;
-    // Collect image file paths
-    // const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-
+    const { name, regularPrice, salePrice, description, category, weight, isTopSeller } = req.body;
+   
      // Collect image file paths
      let imagePaths = [];
 
@@ -29,13 +27,13 @@ exports.createProduct = async (req, res) => {
       salePrice, 
       description,
       category,
-      stock,
       images: imagePaths, // Store image paths
       weight: {
         grams: weight?.grams || "", 
         pieces: weight?.pieces || "", 
         serves: weight?.serves || ""
-      }
+      },
+      isTopSeller: isTopSeller || false 
     });
 
     await newProduct.save();
@@ -93,20 +91,13 @@ exports.getProductById = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, regularPrice, salePrice, category, stock, weight } = req.body;
+    const { name, description, regularPrice, salePrice, category, weight, isTopSeller } = req.body;
   
     // Check if product exists
     let product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-
-    // Update product details
-    // if (req.files && req.files.length > 0) {
-    //   // If new images are uploaded, replace the old ones
-    //   const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-    //   product.images = imagePaths;
-    // }
 
     // Replace images if new ones are uploaded
     if (req.files && req.files.length > 0) {
@@ -134,7 +125,7 @@ exports.updateProduct = async (req, res) => {
     product.regularPrice = regularPrice || product.regularPrice;
     product.salePrice = salePrice || product.salePrice;
     product.category = category || product.category;
-    product.stock = stock || product.stock;
+    product.isTopSeller = isTopSeller || product.isTopSeller;
     product.weight = {
       grams: weight?.grams || product.weight?.grams || "",
       pieces: weight?.pieces || product.weight?.pieces || "",

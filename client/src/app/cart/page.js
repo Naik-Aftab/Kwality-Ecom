@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart } from "@/store/slices/cartSlice";
+import { removeFromCart, addToCart } from "@/store/slices/cartSlice";
 import Link from "next/link";
 import Header from "@/components/header";
 import Snackbar from "@mui/material/Snackbar";
@@ -14,7 +14,8 @@ const Cart = () => {
   const totalQuantity = useSelector((state) => state.cart.totalQuantity);
   const dispatch = useDispatch();
 
-  // console.log("cartItems: ",cartItems)
+  console.log("cart items", cartItems);
+
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -29,6 +30,20 @@ const Cart = () => {
     setSnackbarOpen(true); // Show the snackbar alert
   };
 
+  const handleIncreaseQuantity = (item) => {
+    const updatedItem = { ...item, quantity: item.quantity + 1 };
+    console.log("+ 1 updated product", updatedItem);
+    dispatch(addToCart(updatedItem)); // Add the updated quantity to the cart
+  };
+
+  const handleDecreaseQuantity = (item) => {
+    if (item.quantity > 1) {
+      const updatedItem = { ...item, quantity: item.quantity - 1 };
+      console.log("- 1 updated product", updatedItem);
+      dispatch(addToCart(updatedItem)); // Add the updated quantity to the cart
+    }
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -40,7 +55,6 @@ const Cart = () => {
         <h2 className="text-3xl font-bold mb-6">Shopping Cart</h2>
 
         {cartItems.length === 0 ? (
-          // Show message when cart is empty
           <p className="text-lg text-gray-600">Your cart is empty.</p>
         ) : (
           <div className="flex flex-col lg:flex-row">
@@ -54,26 +68,40 @@ const Cart = () => {
                   >
                     {/* Product Image and Details */}
                     <div className="flex items-center">
-                      
-                        <img
-                          src={`${item.image}`}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover rounded-lg"
-                          onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                      
+                      <img
+                        src={`${item.image}`}
+                        alt={item.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
                       <div className="ml-4">
                         <h3 className="text-xl font-semibold">{item.name}</h3>
                         <p className="text-sm text-gray-500">
-                          Price: ₹{item.price}
+                          {item.weight} 
                         </p>
                         <p className="text-sm text-gray-500">
-                          Quantity: {item.quantity}
+                          Price: ₹{item.price}
                         </p>
+                        <div className="flex items-center my-1">
+                          <button
+                            onClick={() => handleDecreaseQuantity(item)}
+                            className="w-8 h-8 flex justify-center items-center text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform "
+                          >
+                            -
+                          </button>
+                          <span className="mx-2">{item.quantity}</span>
+                          <button
+                            onClick={() => handleIncreaseQuantity(item)}
+                            className="w-8 h-8 flex justify-center text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform "
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Subtotal and Remove Button */}
                     <div className="flex flex-col items-end">
                       <p className="text-lg font-bold">
                         Subtotal: ₹{item.price * item.quantity}
@@ -122,7 +150,7 @@ const Cart = () => {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Positioning the Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           onClose={handleSnackbarClose}
@@ -132,6 +160,7 @@ const Cart = () => {
           Product removed from cart!
         </Alert>
       </Snackbar>
+
       <Footer />
     </>
   );

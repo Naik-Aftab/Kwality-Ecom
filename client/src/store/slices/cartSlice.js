@@ -33,8 +33,7 @@ const cartSlice = createSlice({
       const existingItem = state.items.find(item => item.id === newItem.id);
 
       if (existingItem) {
-        // console.log("new item quantity", newItem.quantity, "existing item quantity", existingItem.quantity);
-        existingItem.quantity += newItem.quantity;
+        existingItem.quantity = newItem.quantity;
       } else {
         state.items.push({
           id: newItem.id,
@@ -42,15 +41,17 @@ const cartSlice = createSlice({
           price: newItem.price,
           quantity: newItem.quantity,
           image: newItem.image,
+          weight: newItem.weight,
         });
       }
 
       // Update total quantity
-      state.totalQuantity += newItem.quantity;
+      state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
 
       // Save the updated cart state to localStorage
       saveCartToLocalStorage(state);
     },
+    
     removeFromCart(state, action) {
       const id = action.payload;
       const existingItem = state.items.find(item => item.id === id);
@@ -63,16 +64,14 @@ const cartSlice = createSlice({
       // Save the updated cart state to localStorage
       saveCartToLocalStorage(state);
     },
+
     clearCart(state) {
       state.items = [];
       state.totalQuantity = 0;
       saveCartToLocalStorage(state); // Don't forget to save to local storage
     },
 
-     // New reducer to set cart from localStorage
-    //  setCartFromLocalStorage(state, action) {
-    //   return action.payload; // Set state from localStorage data
-    // }
+    
   },
 });
 

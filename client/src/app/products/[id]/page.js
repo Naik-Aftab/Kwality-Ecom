@@ -1,8 +1,9 @@
 "use client";
-import { useParams } from "next/navigation"; 
-import React, { useEffect, useState } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
+import { useParams } from "next/navigation"; 
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
@@ -12,7 +13,12 @@ import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import Footer from "@/components/footer";
 import BoltIcon from "@mui/icons-material/Bolt";
-
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Slider from "react-slick";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -21,6 +27,8 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]); 
+
 
 
   const dispatch = useDispatch();
@@ -28,9 +36,16 @@ const ProductDetail = () => {
     const cartItem = {
       id: product._id,
       name: product.name,
-      price: product.salePrice, // Use the sale price for the cart
+      price: product.salePrice, 
       quantity: 1,
-      image: product.images[0], // Adjust if there's an array of images
+      image: product.images[0],
+      weight: [
+        product.weight?.grams,
+        product.weight?.pieces,
+        product.weight?.serves,
+      ]
+        .filter(Boolean)
+        .join(" | "), // Join weight info if available
     };
 
     dispatch(addToCart(cartItem));
@@ -44,6 +59,22 @@ const ProductDetail = () => {
         .then((response) => {
           setProduct(response.data);
           setLoading(false);
+
+          // Fetch related products (same category)
+          axios
+            .get(
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/categories/${response.data.category._id}/products`
+            )
+            .then((res) => {
+              // Filter the top 4 related products
+              const related = res.data.filter(p => p._id !== id).slice(0, 4);
+              setRelatedProducts(related);
+            })
+            .catch((err) => {
+              console.error("Error fetching related products:", err);
+              setError("Error fetching related products.");
+            });
+
         })
         .catch((error) => {
           console.error("Error fetching product:", error);
@@ -56,6 +87,35 @@ const ProductDetail = () => {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
+   // Carousel settings for related products
+   const carouselSettings = {
+    dots: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
+  };
+
 
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-center">{error}</div>;
@@ -144,7 +204,7 @@ const ProductDetail = () => {
           <div className="mt-6">
             {activeTab === "description" && (
               <p className="text-gray-700">
-                {product.longDescription || "No description available."}
+                Chicken drumsticks are the lower part of the chicken leg, known for their rich flavor and tender, juicy meat. They are dark meat, which makes them more flavorful and slightly higher in fat compared to white meat. Drumsticks are versatile and can be grilled, baked, fried, or roasted, making them a favorite for casual meals, barbecues, and parties. They are also popular in marinades, as the meat absorbs seasonings well. Perfect for handheld enjoyment, drumsticks are enjoyed by people of all ages.
               </p>
             )}
             {activeTab === "sourcing" && (
@@ -155,6 +215,107 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+        {/* Related Products Section */}
+        <div className="container my-8">
+        <h2 className="text-3xl font-bold mb-6">Related Products</h2>
+        <Slider {...carouselSettings}>
+          {relatedProducts.map((relatedProduct) => (
+              <div key={relatedProduct._id} className="p-3">
+              <Link sx={{display:"flex", justifyContent:"center"}} href={`/products/${relatedProduct._id}`} passHref >
+                <Card
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    textAlign: "center",
+                    boxShadow: 3,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "scale(1.02)",
+                      boxShadow: 6,
+                    },
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={`${relatedProduct.images[0]}`}
+                    alt={relatedProduct.name}
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      {relatedProduct.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {[
+                        relatedProduct.weight?.grams && `${relatedProduct.weight.grams}`,
+                        relatedProduct.weight?.pieces && `${relatedProduct.weight.pieces}`,
+                        relatedProduct.weight?.serves && ` ${relatedProduct.weight.serves}`,
+                      ]
+                        .filter(Boolean)
+                        .join(" | ")}
+                    </Typography>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      gap={1}
+                      my={1}
+                    >
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ textDecoration: "line-through", fontWeight: "bold" }}
+                      >
+                        ₹{relatedProduct.regularPrice}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        color="primary"
+                        sx={{ fontWeight: "bold", color: "#C00000" }}
+                      >
+                        ₹{relatedProduct.salePrice}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "green", fontWeight: "bold" }}
+                    >
+                      <BoltIcon sx={{ color: "yellow" }} />
+                      Get Delivered in 2 Hours
+                    </Typography>
+                    <Button
+                      size="small"
+                      sx={{
+                        marginTop: "15px",
+                        color: "white",
+                        background:
+                          "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
+                        borderRadius: 25,
+                        boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
+                        padding: "10px 20px",
+                        fontWeight: "bold",
+                        transition: "0.3s ease",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
+                          transform: "scale(1.05)",
+                          boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
+                        },
+                      }}
+                    >
+                      Add To Cart
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
+              </div>
+          ))}
+        </Slider>
+      </div>
+
        {/* Snackbar for product added to cart */}
        <Snackbar
         open={snackbarOpen}

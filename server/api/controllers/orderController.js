@@ -9,7 +9,7 @@ const sendEmail = require("../../utils/sendMail");
 // @desc    Create a new order
 // @route   POST /api/orders
 exports.createOrder = async (req, res) => {
-  const { customer, products, totalAmount, paymentMethod, shippingCharge } =
+  const { customer, products, totalAmount, paymentMethod, note } =
     req.body;
 
   try {
@@ -61,7 +61,7 @@ exports.createOrder = async (req, res) => {
       products: updatedProducts,
       totalAmount,
       paymentMethod,
-      shippingCharge,
+      note
     });
 
     // Optionally, fetch the complete order data with populated fields
@@ -78,13 +78,13 @@ exports.createOrder = async (req, res) => {
     console.log("Customer in Order:", populatedOrder.customer);
 
     // let buffer;
-    try {
-      // Generate invoice as a PDF buffer
-      buffer = await createInvoice(populatedOrder); // Now returns a buffer
-    } catch (error) {
-      console.error("Error generating invoice:", error.message);
-      return res.status(500).json({ message: "Failed to generate invoice" });
-    }
+    // try {
+    //   // Generate invoice as a PDF buffer
+    //   buffer = await createInvoice(populatedOrder); // Now returns a buffer
+    // } catch (error) {
+    //   console.error("Error generating invoice:", error.message);
+    //   return res.status(500).json({ message: "Failed to generate invoice" });
+    // }
 
     // Send email to the user with the invoice
     try {
@@ -92,12 +92,12 @@ exports.createOrder = async (req, res) => {
         email: existingCustomer.email,
         subject: "Order Confirmation & Invoice",
         message: `Dear ${existingCustomer.fullName},\n\nThank you for your order! Please find your invoice attached.\n\nRegards,\nKwality Ecom Team`,
-        attachments: [
-          {
-            filename: `Invoice_${order._id}.pdf`,
-            content: buffer,
-          },
-        ],
+        // attachments: [
+        //   {
+        //     filename: `Invoice_${order._id}.pdf`,
+        //     content: buffer,
+        //   },
+        // ],
       });
     } catch (error) {
       console.error("Error sending email to user:", error.message);
@@ -129,6 +129,7 @@ exports.createOrder = async (req, res) => {
       \n\nOrder Details:
       \nTotal Amount: ₹${order.totalAmount.toFixed(2)}
       \n\nProducts:\n${productsList}
+      \n\nNote:\n${order.note}
       \n\nThank you,
       \nKwality Ecom Team `,
       });
@@ -176,9 +177,9 @@ exports.getAllOrders = async (req, res) => {
         customer: order.customer,
         products: order.products,
         totalAmount: order.totalAmount,
-        shippingCharge: order.shippingCharge,
         status: order.status,
         createdAt: order.createdAt,
+        note: order.note,
       })),
     });
   } catch (error) {
@@ -209,9 +210,9 @@ exports.getOrderById = async (req, res) => {
       customer: order.customer,
       products: order.products,
       totalAmount: order.totalAmount,
-      shippingCharge: order.shippingCharge,
       status: order.status,
       createdAt: order.createdAt,
+      note: order.note, 
     });
   } catch (error) {
     console.error("Error fetching order:", error.message);
@@ -258,7 +259,6 @@ exports.updateOrder = async (req, res) => {
       customer: order.customer,
       products: order.products,
       totalAmount: order.totalAmount,
-      shippingCharge: order.shippingCharge,
       status: order.status,
       createdAt: order.createdAt,
     });

@@ -43,10 +43,10 @@ const orderSchema = new mongoose.Schema({
     enum: ['cashOnDelivery', 'creditCard', 'debitCard', 'netBanking'], // Updated enum values for payment methods
     required: true,
   },
-  shippingCharge: {
-    type: Number,
-    default: 100 // Default shipping charge
-  },
+  note: {
+    type: String,
+    required: false 
+  },  
   status: {
     type: String,
     enum: [

@@ -124,7 +124,7 @@ const Header = () => {
           </Box>
 
           {/* Cart Icon */}
-          <IconButton color="inherit" sx={{ color: "black" }}>
+          <IconButton color="inherit" sx={{ color: "black" , width:"50px", height:"50px" }}>
             <Link href="/cart" style={{ position: "relative" }}>
               <ShoppingCartOutlinedIcon />
               {isMounted && totalQuantity > 0 && (
@@ -146,8 +146,8 @@ const Header = () => {
                   }}
                 >
                   {totalQuantity}
-                </Box>
-              )}
+                </Box> 
+              )} 
             </Link>
           </IconButton>
 

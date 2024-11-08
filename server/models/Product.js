@@ -31,13 +31,14 @@ const productSchema = new mongoose.Schema({
     type: [String], 
     required: true 
   },
-  stock: { 
-    type: Number, 
-    default: 0 
-  },
+  
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  isTopSeller: { 
+    type: Boolean, 
+    default: false 
   },
 });
 

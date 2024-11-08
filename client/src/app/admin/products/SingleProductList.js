@@ -21,6 +21,8 @@ import {
   Select,
   TextField,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -107,8 +109,7 @@ function SingleProductList() {
     formData.append("regularPrice", selectedProduct.regularPrice);
     formData.append("salePrice", selectedProduct.salePrice);
     formData.append("category", selectedProduct.category._id);
-    formData.append("stock", selectedProduct.stock);
-
+    formData.append("isTopSeller", selectedProduct.isTopSeller || false);
     formData.append("weight[grams]", selectedProduct.weight.grams || "");
     formData.append("weight[pieces]", selectedProduct.weight.pieces || "");
     formData.append("weight[serves]", selectedProduct.weight.serves || "");
@@ -185,8 +186,7 @@ function SingleProductList() {
     formData.append("regularPrice", selectedProduct.regularPrice);
     formData.append("salePrice", selectedProduct.salePrice);
     formData.append("category", selectedProduct.category._id);
-    formData.append("stock", selectedProduct.stock);
-
+    formData.append("isTopSeller", selectedProduct.isTopSeller || false);
     formData.append("weight[grams]", selectedProduct.weight.grams || "");
     formData.append("weight[pieces]", selectedProduct.weight.pieces || "");
     formData.append("weight[serves]", selectedProduct.weight.serves || "");
@@ -316,7 +316,7 @@ function SingleProductList() {
                 margin="normal"
               />
 
-              <Box display="flex" gap={2} mb={2}>
+              <Box display="flex" gap={2}>
                 <TextField
                   label="Weight (grams)"
                   fullWidth
@@ -353,25 +353,26 @@ function SingleProductList() {
                 onChange={handleInputChange}
                 margin="normal"
               />
-
-              <TextField
-                label="Regular Price"
-                fullWidth
-                name="regularPrice"
-                type="number"
-                value={selectedProduct.regularPrice || ""}
-                onChange={handleInputChange}
-                margin="normal"
-              />
-              <TextField
-                label="Sale Price"
-                fullWidth
-                name="salePrice"
-                type="number"
-                value={selectedProduct.salePrice || ""}
-                onChange={handleInputChange}
-                margin="normal"
-              />
+              <Box display="flex" gap={2}>
+                <TextField
+                  label="Regular Price"
+                  fullWidth
+                  name="regularPrice"
+                  type="number"
+                  value={selectedProduct.regularPrice || ""}
+                  onChange={handleInputChange}
+                  margin="normal"
+                />
+                <TextField
+                  label="Sale Price"
+                  fullWidth
+                  name="salePrice"
+                  type="number"
+                  value={selectedProduct.salePrice || ""}
+                  onChange={handleInputChange}
+                  margin="normal"
+                />
+              </Box>
 
               <FormControl fullWidth margin="normal">
                 <Select
@@ -397,14 +398,21 @@ function SingleProductList() {
                 </Select>
               </FormControl>
 
-              <TextField
-                label="Stock"
-                fullWidth
-                name="stock"
-                type="number"
-                value={selectedProduct.stock || ""}
-                onChange={handleInputChange}
-                margin="normal"
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProduct.isTopSeller || false}
+                    onChange={(e) =>
+                      setSelectedProduct((prev) => ({
+                        ...prev,
+                        isTopSeller: e.target.checked,
+                      }))
+                    }
+                    name="isTopSeller"
+                    color="primary"
+                  />
+                }
+                label="Top Seller Product"
               />
 
               <input

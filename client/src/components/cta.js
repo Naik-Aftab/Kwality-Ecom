@@ -1,20 +1,59 @@
-import React from 'react'
+import React from 'react';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 export const Cta = () => {
   return (
-    <div className='container flex justify-center items-center text-center rounded-2xl my-5' style={{backgroundImage:'url(doodle-bg.png)', backgroundColor: '#ffe9e9f0', height:'300px',
+    <Box
+      sx={{
+        backgroundImage: 'url(doodle-bg.png)',
+        backgroundColor: '#ffe9e9f0',
+        height: '300px',
         backgroundBlendMode: 'overlay',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
         overflow: 'hidden',
-         }}>
-        <div className=' py-10'>
-            <h1 className='text-3xl mb-5 font-bold'>We Delivery on Next Day from 10:00 AM to 08:00 PM</h1>
-            <Button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-400 hover:to-blue-500 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">Order Now</Button>
-        </div>
-    </div>
-  )
-}
+        borderRadius: 2, 
+        my: 5, 
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <Box sx={{ py: 5 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            mb: 2, 
+            fontWeight: 'bold',
+          }}
+        >
+          We Deliver the Next Day from 10:00 AM to 08:00 PM
+        </Typography>
+        <Button
+          sx={{
+            background: 'linear-gradient(to right, #3b82f6, #2563eb)',
+            color: 'white',
+            px: 3, 
+            py: 1.5, 
+            borderRadius: 1, 
+            fontWeight: 'medium',
+            boxShadow: 3,
+            transition: 'transform 0.3s ease-in-out, background-color 0.3s',
+            '&:hover': {
+              background: 'linear-gradient(to right, #60a5fa, #3b82f6)',
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
+          Order Now
+        </Button>
+      </Box>
+    </Box>
+  );
+};

@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { Banner } from "@/components/banner";
 import { Category } from "@/components/category";
 import { Cta } from "@/components/cta";
-import { ProductList } from "@/components/productList";
+import { TopSellerList } from "@/components/topSellerProducts";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -15,7 +15,7 @@ const Home = () => {
       <Header/>
         <Banner />
         <Category />
-        <ProductList />
+        <TopSellerList />
         <Cta />
         <Footer/>
     </div>

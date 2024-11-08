@@ -34,7 +34,7 @@ export const Category = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center">
         <h2 className="text-2xl text-red-500">{error}</h2>
       </div>
     );

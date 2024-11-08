@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearCart } from "@/store/slices/cartSlice";
-import { TextField, Button, CircularProgress } from "@mui/material";
+import { TextField, Button, CircularProgress,Box } from "@mui/material";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import GoogleApiAutocomplete from "@/components/GoogleApiAutocomplete";
@@ -15,6 +15,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const [isHydrated, setIsHydrated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     setIsHydrated(true);
@@ -27,7 +28,6 @@ const Checkout = () => {
     0
   );
 
-  const shippingCost = 100; // Fixed shipping cost
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -110,8 +110,8 @@ const Checkout = () => {
         })),
         totalQuantity,
         totalAmount: totalAmount,
-        shippingCharge: shippingCost,
         paymentMethod,
+        note: note,
       };
 
       let orderResponse;
@@ -157,7 +157,8 @@ const Checkout = () => {
 
       let porterResponse;
       try {
-        porterResponse = await axios.post(`
+        porterResponse = await axios.post(
+          `
           ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
           porterOrderData
         );
@@ -257,7 +258,7 @@ const Checkout = () => {
                 onChange={handleAddressChange}
                 required
               />
-              <div className="flex space-x-4" sx={{ mb: 2 }}>
+              <Box className="flex space-x-4" sx={{ mb: 2 }}>
                 <TextField
                   label="City"
                   name="city"
@@ -276,7 +277,20 @@ const Checkout = () => {
                   onChange={handleAddressChange}
                   required
                 />
-              </div>
+              </Box>
+
+              <Box sx={{mb:2}}>
+                <TextField
+                  label="Instructions"
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  rows={2} 
+                  name="note"
+                  placeholder="Add a note (optional)"
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </Box>
 
               <fieldset sx={{ mb: 2 }}>
                 <legend className="block text-gray-700">Payment Method</legend>
@@ -342,6 +356,7 @@ const Checkout = () => {
                     />
                     <div>
                       <h3 className="text-lg font-medium">{item.name}</h3>
+                      <p className="text-sm text-gray-500">{item.weight}</p>
                       <p className="text-gray-600">
                         {item.quantity} x ₹{item.price.toFixed(2)}
                       </p>
@@ -364,13 +379,13 @@ const Checkout = () => {
                   <p>Total Items: {totalQuantity}</p>
                   <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between mb-2">
+                {/* <div className="flex justify-between mb-2">
                   <p>Delivery Charges:</p>
                   <p>₹{shippingCost.toFixed(2)}</p>
-                </div>
+                </div> */}
                 <div className="flex justify-between font-bold">
                   <p>Total Amount:</p>
-                  <p>₹{(totalAmount + shippingCost).toFixed(2)}</p>
+                  <p>₹{totalAmount.toFixed(2)}</p>
                 </div>
               </div>
             </>
