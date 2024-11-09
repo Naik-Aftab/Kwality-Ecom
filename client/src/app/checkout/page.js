@@ -5,12 +5,13 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearCart } from "@/store/slices/cartSlice";
-import { TextField, Button, CircularProgress, Box } from "@mui/material";
+import { TextField, Button, CircularProgress, Box, Typography } from "@mui/material";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import GoogleApiAutocomplete from "@/components/GoogleApiAutocomplete";
 import Footer from "@/components/footer";
 import UspsSection from "@/components/whychooseus";
+import BoltIcon from "@mui/icons-material/Bolt";
 
 const Checkout = () => {
   const router = useRouter();
@@ -33,6 +34,7 @@ const Checkout = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [apartment_address, setApartment_address] = useState("");
   const [addressComponents, setAddressComponents] = useState({});
   const [shippingAddress, setShippingAddress] = useState({
     street_address1: "",
@@ -52,7 +54,7 @@ const Checkout = () => {
     setShippingAddress({
       street_address1: selectedAddressComponents.street_address1,
       city: selectedAddressComponents.city,
-      apartment_address: selectedAddressComponents.apartment_address,
+      apartment_address: apartment_address,
       state: selectedAddressComponents.state,
       pincode: selectedAddressComponents.pincode,
       country: selectedAddressComponents.country,
@@ -141,7 +143,7 @@ const Checkout = () => {
         email_id: customerResponse.data.customer.email,
         drop_details: {
           address: {
-            apartment_address: addressComponents.apartment_address,
+            apartment_address: apartment_address,
             street_address1: addressComponents.street_address1,
             city: addressComponents.city,
             state: addressComponents.state,
@@ -185,7 +187,8 @@ const Checkout = () => {
 
       // Clear cart and redirect to thank you page
       dispatch(clearCart());
-      router.push("/thankyou");
+      const id = "672f69c3fd29ce73747f77d0";
+      router.push(`/orderInvoice/${id}`);
     } catch (error) {
       console.error("Unexpected error:", error);
       await Swal.fire({
@@ -259,8 +262,8 @@ const Checkout = () => {
                   variant="outlined"
                   fullWidth
                   sx={{ mb: 2 }}
-                  value={shippingAddress.apartment_address}
-                  onChange={handleAddressChange}
+                  value={apartment_address}
+                  onChange={(e) => setApartment_address(e.target.value)}
                   required
                 />
                 <Box className="flex space-x-4" sx={{ mb: 2 }}>
@@ -312,10 +315,10 @@ const Checkout = () => {
                     />
                     <label htmlFor="cashOnDelivery" className="ml-2 flex">
                       <img
-                        src="/rupee.png" // Replace with the actual image path
+                        src="/rupee.png" 
                         alt="Cash on Delivery Icon"
-                        className="mr-2" // Adds spacing between the image and text
-                        style={{ width: "20px", height: "20px" }} // Adjust size as needed
+                        className="mr-2" 
+                        style={{ width: "20px", height: "20px" }} 
                       />
                       Cash on Delivery
                     </label>
@@ -338,8 +341,13 @@ const Checkout = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  color="primary"
                   fullWidth
+                  sx={{
+                    backgroundColor: 'green',
+                    '&:hover': {
+                      backgroundColor: 'darkgreen',
+                    },
+                  }}
                   className={loading ? "opacity-50 cursor-not-allowed" : ""}
                   disabled={loading}
                 >
@@ -378,24 +386,35 @@ const Checkout = () => {
                     <p className="font-semibold">
                       ₹{(item.price * item.quantity).toFixed(2)}
                     </p>
-                  </div>
+                   </div>
+                  
                 ))}
                 {/* Button to Modify Cart */}
+                <Box className="flex justify-between align-middle">
                 <Link href="/cart" passHref>
                   <Button variant="outlined" color="secondary" className="mt-4">
                     Modify Cart
                   </Button>
                 </Link>
+                <Typography
+                       variant="body2"
+                       sx={{ color: "green", fontWeight: "bold", mb:"4px" }}
+                     >
+                       {" "}
+                       <BoltIcon sx={{ color: "yellow" }} />
+                       Get Delivered in 2 Hours
+                     </Typography>
+                </Box>
                 {/* Total Price */}
                 <div className="border-t mt-4 pt-4">
                   <div className="flex justify-between mb-2">
                     <p>Total Items: {totalQuantity}</p>
                     <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
                   </div>
-                  {/* <div className="flex justify-between mb-2">
+                  <div className="flex justify-between mb-2">
                   <p>Delivery Charges:</p>
-                  <p>₹{shippingCost.toFixed(2)}</p>
-                </div> */}
+                  <p>₹ 0.00</p>
+                </div>
                   <div className="flex justify-between font-bold">
                     <p>Total Amount:</p>
                     <p>₹{totalAmount.toFixed(2)}</p>

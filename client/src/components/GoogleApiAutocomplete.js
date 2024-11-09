@@ -75,6 +75,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
             fullWidth 
             className="mb-4" 
             required 
+            placeholder="Select location from suggestions"
             error={!!errorMessage}
             helperText={errorMessage || ' '}
           />
