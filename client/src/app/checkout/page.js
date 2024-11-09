@@ -46,17 +46,18 @@ const Checkout = () => {
     lat: "",
     lng: "",
   });
+  const updatedApartmentAddress = apartment_address;
+
   const [paymentMethod, setPaymentMethod] = useState("cashOnDelivery"); // Default payment method
 
   const handleAddressSelect = (selectedAddressComponents) => {
     setAddressComponents(selectedAddressComponents);
-    const updatedApartmentAddress = apartment_address;
 
     // Update the shippingAddress state with the selected address components
     setShippingAddress({
       street_address1: selectedAddressComponents.street_address1,
       city: selectedAddressComponents.city,
-      apartment_address: updatedApartmentAddress,
+      apartment_address: "flat no",
       state: selectedAddressComponents.state,
       pincode: selectedAddressComponents.pincode,
       country: selectedAddressComponents.country,
