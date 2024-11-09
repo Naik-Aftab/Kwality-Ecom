@@ -57,8 +57,6 @@ const createInvoice = (order) => {
   doc.moveDown(1.5);
   doc.fillColor("#333").fontSize(16);
   doc.text(`Total Amount: Rs ${order.totalAmount.toFixed(2)}`, { align: "right" });
-  doc.text(`Shipping Charge: Rs ${order.shippingCharge.toFixed(2)}`, { align: "right" });
-  doc.text(`Grand Total: Rs ${(order.totalAmount + order.shippingCharge).toFixed(2)}`, { align: "right", underline: true });
   
   // Finalize the document
   doc.end();

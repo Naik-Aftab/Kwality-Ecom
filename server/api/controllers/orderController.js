@@ -78,13 +78,13 @@ exports.createOrder = async (req, res) => {
     console.log("Customer in Order:", populatedOrder.customer);
 
     // let buffer;
-    // try {
-    //   // Generate invoice as a PDF buffer
-    //   buffer = await createInvoice(populatedOrder); // Now returns a buffer
-    // } catch (error) {
-    //   console.error("Error generating invoice:", error.message);
-    //   return res.status(500).json({ message: "Failed to generate invoice" });
-    // }
+    try {
+      // Generate invoice as a PDF buffer
+      buffer = await createInvoice(populatedOrder); // Now returns a buffer
+    } catch (error) {
+      console.error("Error generating invoice:", error.message);
+      return res.status(500).json({ message: "Failed to generate invoice" });
+    }
 
     // Send email to the user with the invoice
     try {
@@ -92,12 +92,12 @@ exports.createOrder = async (req, res) => {
         email: existingCustomer.email,
         subject: "Order Confirmation & Invoice",
         message: `Dear ${existingCustomer.fullName},\n\nThank you for your order! Please find your invoice attached.\n\nRegards,\nKwality Ecom Team`,
-        // attachments: [
-        //   {
-        //     filename: `Invoice_${order._id}.pdf`,
-        //     content: buffer,
-        //   },
-        // ],
+        attachments: [
+          {
+            filename: `Invoice_${order._id}.pdf`,
+            content: buffer,
+          },
+        ],
       });
     } catch (error) {
       console.error("Error sending email to user:", error.message);
