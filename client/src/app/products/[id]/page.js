@@ -19,6 +19,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Slider from "react-slick";
+import UspsSection from "@/components/whychooseus";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -216,9 +217,11 @@ const ProductDetail = () => {
         </div>
       </div>
 
+      <UspsSection />
+
         {/* Related Products Section */}
         <div className="container my-8">
-        <h2 className="text-3xl font-bold mb-6">Related Products</h2>
+        <h1 className="text-3xl font-bold mb-6 text-center">Related Products</h1>
         <Slider {...carouselSettings}>
           {relatedProducts.map((relatedProduct) => (
               <div key={relatedProduct._id} className="p-3">

@@ -8,6 +8,7 @@ import { Cta } from "@/components/cta";
 import { TopSellerList } from "@/components/topSellerProducts";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import UspsSection from "@/components/whychooseus";
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
         <Category />
         <TopSellerList />
         <Cta />
+        <UspsSection />
         <Footer/>
     </div>
   );

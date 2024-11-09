@@ -5,10 +5,12 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearCart } from "@/store/slices/cartSlice";
-import { TextField, Button, CircularProgress,Box } from "@mui/material";
+import { TextField, Button, CircularProgress, Box } from "@mui/material";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import GoogleApiAutocomplete from "@/components/GoogleApiAutocomplete";
+import Footer from "@/components/footer";
+import UspsSection from "@/components/whychooseus";
 
 const Checkout = () => {
   const router = useRouter();
@@ -201,113 +203,124 @@ const Checkout = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-10">
-      <h1 className="text-4xl font-bold mb-6 text-center">Checkout</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Column - Shipping Information */}
-        <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
-          <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-          {loading ? (
-            <div className="flex justify-center items-center">
-              <CircularProgress />
-              <span className="ml-2">Placing order...</span>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <TextField
-                label="Full Name"
-                variant="outlined"
-                fullWidth
-                sx={{ mb: 2 }}
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-              <TextField
-                label="Email"
-                type="email"
-                variant="outlined"
-                fullWidth
-                sx={{ mb: 2 }}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <TextField
-                label="Phone"
-                variant="outlined"
-                fullWidth
-                sx={{ mb: 2 }}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-
-              {/* Shipping Address Fields */}
-              <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
-
-              <GoogleApiAutocomplete onAddressSelect={handleAddressSelect} />
-
-              <TextField
-                label="Flat No / House No / Apartment"
-                name="apartment_address"
-                variant="outlined"
-                fullWidth
-                sx={{ mb: 2 }}
-                value={shippingAddress.apartment_address}
-                onChange={handleAddressChange}
-                required
-              />
-              <Box className="flex space-x-4" sx={{ mb: 2 }}>
+    <>
+      <div className="container mx-auto px-6 py-10">
+        <h1 className="text-4xl font-bold mb-6 text-center">Checkout</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Column - Shipping Information */}
+          <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+            <h2 className="text-2xl font-semibold mb-4">
+              Shipping Information
+            </h2>
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <CircularProgress />
+                <span className="ml-2">Placing order...</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
                 <TextField
-                  label="City"
-                  name="city"
+                  label="Full Name"
                   variant="outlined"
                   fullWidth
-                  value={shippingAddress.city}
-                  onChange={handleAddressChange}
+                  sx={{ mb: 2 }}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   required
                 />
                 <TextField
-                  label="Pin Code"
-                  name="pincode"
+                  label="Email"
+                  type="email"
                   variant="outlined"
                   fullWidth
-                  value={shippingAddress.pincode}
+                  sx={{ mb: 2 }}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <TextField
+                  label="Phone"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+
+                {/* Shipping Address Fields */}
+                <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
+
+                <GoogleApiAutocomplete onAddressSelect={handleAddressSelect} />
+
+                <TextField
+                  label="Flat No / House No / Apartment"
+                  name="apartment_address"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  value={shippingAddress.apartment_address}
                   onChange={handleAddressChange}
                   required
                 />
-              </Box>
-
-              <Box sx={{mb:2}}>
-                <TextField
-                  label="Instructions"
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={2} 
-                  name="note"
-                  placeholder="Add a note (optional)"
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </Box>
-
-              <fieldset sx={{ mb: 2 }}>
-                <legend className="block text-gray-700">Payment Method</legend>
-                <div className="flex items-center" sx={{ mb: 1 }}>
-                  <input
-                    type="radio"
-                    id="cashOnDelivery"
-                    name="paymentMethod"
-                    value="cashOnDelivery"
-                    checked={paymentMethod === "cashOnDelivery"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
+                <Box className="flex space-x-4" sx={{ mb: 2 }}>
+                  <TextField
+                    label="City"
+                    name="city"
+                    variant="outlined"
+                    fullWidth
+                    value={shippingAddress.city}
+                    onChange={handleAddressChange}
+                    required
                   />
-                  <label htmlFor="cashOnDelivery" className="ml-2">
-                    Cash on Delivery
-                  </label>
-                </div>
-                <div className="flex items-center" sx={{ mb: 1 }}>
+                  <TextField
+                    label="Pin Code"
+                    name="pincode"
+                    variant="outlined"
+                    fullWidth
+                    value={shippingAddress.pincode}
+                    onChange={handleAddressChange}
+                    required
+                  />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    label="Instructions"
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    name="note"
+                    placeholder="Add a note (optional)"
+                    onChange={(e) => setNote(e.target.value)}
+                  />
+                </Box>
+
+                <fieldset sx={{ mb: 2 }}>
+                  <legend className="block text-gray-700 mb-2">
+                    Payment Method
+                  </legend>
+                  <div className="flex items-center mb-2">
+                    <input
+                      type="radio"
+                      id="cashOnDelivery"
+                      name="paymentMethod"
+                      value="cashOnDelivery"
+                      checked={paymentMethod === "cashOnDelivery"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+                    <label htmlFor="cashOnDelivery" className="ml-2 flex">
+                      <img
+                        src="/rupee.png" // Replace with the actual image path
+                        alt="Cash on Delivery Icon"
+                        className="mr-2" // Adds spacing between the image and text
+                        style={{ width: "20px", height: "20px" }} // Adjust size as needed
+                      />
+                      Cash on Delivery
+                    </label>
+                  </div>
+                  {/* <div className="flex items-center" sx={{ mb: 1 }}>
                   <input
                     type="radio"
                     id="onlinePayment"
@@ -319,82 +332,85 @@ const Checkout = () => {
                   <label htmlFor="onlinePayment" className="ml-2">
                     Online Payment
                   </label>
-                </div>
-              </fieldset>
+                </div> */}
+                </fieldset>
 
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                className={loading ? "opacity-50 cursor-not-allowed" : ""}
-                disabled={loading}
-              >
-                {loading ? "Placing Order..." : "Place Order"}
-              </Button>
-            </form>
-          )}
-        </div>
-
-        {/* Right Column - Order Summary */}
-        <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
-          <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
-
-          {/* Cart Items */}
-          {cartItems.length > 0 ? (
-            <>
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center mb-4"
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  className={loading ? "opacity-50 cursor-not-allowed" : ""}
+                  disabled={loading}
                 >
-                  <div className="flex items-center">
-                    <img
-                      src={`${item.image}`}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg mr-4"
-                    />
-                    <div>
-                      <h3 className="text-lg font-medium">{item.name}</h3>
-                      <p className="text-sm text-gray-500">{item.weight}</p>
-                      <p className="text-gray-600">
-                        {item.quantity} x ₹{item.price.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="font-semibold">
-                    ₹{(item.price * item.quantity).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-              {/* Button to Modify Cart */}
-              <Link href="/cart" passHref>
-                <Button variant="outlined" color="secondary" className="mt-4">
-                  Modify Cart
+                  {loading ? "Placing Order..." : "Place Order"}
                 </Button>
-              </Link>
-              {/* Total Price */}
-              <div className="border-t mt-4 pt-4">
-                <div className="flex justify-between mb-2">
-                  <p>Total Items: {totalQuantity}</p>
-                  <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
-                </div>
-                {/* <div className="flex justify-between mb-2">
+              </form>
+            )}
+          </div>
+
+          {/* Right Column - Order Summary */}
+          <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+            <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
+
+            {/* Cart Items */}
+            {cartItems.length > 0 ? (
+              <>
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center mb-4"
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={`${item.image}`}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-lg mr-4"
+                      />
+                      <div>
+                        <h3 className="text-lg font-medium">{item.name}</h3>
+                        <p className="text-sm text-gray-500">{item.weight}</p>
+                        <p className="text-gray-600">
+                          {item.quantity} x ₹{item.price.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="font-semibold">
+                      ₹{(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+                {/* Button to Modify Cart */}
+                <Link href="/cart" passHref>
+                  <Button variant="outlined" color="secondary" className="mt-4">
+                    Modify Cart
+                  </Button>
+                </Link>
+                {/* Total Price */}
+                <div className="border-t mt-4 pt-4">
+                  <div className="flex justify-between mb-2">
+                    <p>Total Items: {totalQuantity}</p>
+                    <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
+                  </div>
+                  {/* <div className="flex justify-between mb-2">
                   <p>Delivery Charges:</p>
                   <p>₹{shippingCost.toFixed(2)}</p>
                 </div> */}
-                <div className="flex justify-between font-bold">
-                  <p>Total Amount:</p>
-                  <p>₹{totalAmount.toFixed(2)}</p>
+                  <div className="flex justify-between font-bold">
+                    <p>Total Amount:</p>
+                    <p>₹{totalAmount.toFixed(2)}</p>
+                  </div>
                 </div>
-              </div>
-            </>
-          ) : (
-            <p>No items in the cart.</p>
-          )}
+              </>
+            ) : (
+              <p>No items in the cart.</p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      <UspsSection />
+      <Footer />
+    </>
   );
 };
 

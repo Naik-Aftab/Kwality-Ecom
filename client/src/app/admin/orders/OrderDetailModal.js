@@ -158,21 +158,17 @@ export default function OrderDetailModal({
             </Table>
           </TableContainer>
         </Box>
-
+        <Box my={2}>
+          <Typography variant="h6">
+            Order Note: {order.note}    
+          </Typography>
+          </Box>        
         {/* Summary */}
-        <Box mt={2} mb={4}>
-          <Typography variant="h5" gutterBottom>
-            Order Summary
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            <strong>Total Amount:</strong> ₹ {order.totalAmount}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            <strong>Shipping Charge:</strong> ₹ {order.shippingCharge}
-          </Typography>
+        <Box mt={2} mb={2}>
+          
           <Typography variant="h6" mt={2}>
             <CurrencyRupeeIcon /> <strong>Total Payable:</strong> ₹{" "}
-            {order.totalAmount + order.shippingCharge}
+            {order.totalAmount}
           </Typography>
         </Box>
       </DialogContent>

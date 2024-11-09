@@ -12,7 +12,7 @@ import Link from "next/link";
 import Header from "@/components/header";
 import BoltIcon from "@mui/icons-material/Bolt";
 import Footer from "@/components/footer";
-
+import UspsSection from "@/components/whychooseus";
 
 const CategoryProducts = () => {
   const {categoryId} = useParams(); // Ensure this is available
@@ -184,6 +184,7 @@ const CategoryProducts = () => {
         ))}
       </div>
     </div>
+    <UspsSection />
     <Footer/>
     </>
   );

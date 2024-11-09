@@ -161,7 +161,10 @@ exports.getAllOrders = async (req, res) => {
     const orders = await Order.find()
       .sort({ createdAt: -1 }) // Sort orders in reverse (latest first)
       .populate("customer", "fullName email") // Populate customer details
-      .populate("products.product", "name price") // Populate product details
+      .populate({
+        path: "products.product",
+        refPath: "products.productModel",
+      }) // Populate product details
       .limit(Number(limit)) // Limit the number of orders returned
       .skip(Number(skip)); // Skip the first N results
 
@@ -180,6 +183,7 @@ exports.getAllOrders = async (req, res) => {
         status: order.status,
         createdAt: order.createdAt,
         note: order.note,
+        isViewed: order.isViewed,
       })),
     });
   } catch (error) {
@@ -196,12 +200,20 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(id)
       .populate("customer", "fullName email phone shippingAddress") // Populate customer details
-      .populate("products.product", "name salePrice"); // Populate product details
+      .populate({
+        path: "products.product",
+        refPath: "products.productModel",
+      }); // Populate product details
 
     // console.log("getOrderById", order.products);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (!order.isViewed) {
+      order.isViewed = true;
+      await order.save(); // Save the updated order with isViewed = true
     }
 
     res.status(200).json({
@@ -212,7 +224,8 @@ exports.getOrderById = async (req, res) => {
       totalAmount: order.totalAmount,
       status: order.status,
       createdAt: order.createdAt,
-      note: order.note, 
+      note: order.note,
+      isViewed: order.isViewed, 
     });
   } catch (error) {
     console.error("Error fetching order:", error.message);

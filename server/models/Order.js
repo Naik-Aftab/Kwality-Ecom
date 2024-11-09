@@ -43,10 +43,15 @@ const orderSchema = new mongoose.Schema({
     enum: ['cashOnDelivery', 'creditCard', 'debitCard', 'netBanking'], // Updated enum values for payment methods
     required: true,
   },
+  porterOrderId:{
+    type:String,
+    required: false,
+  },
   note: {
     type: String,
     required: false 
-  },  
+  },
+  isViewed: { type: Boolean, default: false },  
   status: {
     type: String,
     enum: [
