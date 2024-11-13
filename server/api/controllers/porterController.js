@@ -32,7 +32,6 @@ const createOrder = async (req, res) => {
 
   try {
 
-    console.log("url porter",`${process.env.PORTER_BASE_URL}/create`)
     const response = await axios.post(`${process.env.PORTER_BASE_URL}/create`,
       {
         request_id, 

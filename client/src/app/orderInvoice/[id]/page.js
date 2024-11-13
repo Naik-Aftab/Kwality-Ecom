@@ -62,7 +62,6 @@ const OrderInvoice = () => {
       sx={{
         maxWidth: "800px",
         mx: "auto",
-        // my: 4,
         p: 3,
         borderRadius: "8px",
         boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
@@ -70,7 +69,7 @@ const OrderInvoice = () => {
       }}
     >
       {/* Header with Logo and Title */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+      <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
           {/* Company Logo */}
           <Image
@@ -98,7 +97,7 @@ const OrderInvoice = () => {
         <Typography variant="h4" fontWeight="bold" color="success.main"> {/* Green color */}
           Order Invoice
         </Typography>
-        <Typography variant="subtitle1">Order ID: {order._id}</Typography>
+        <Typography variant="subtitle1">Order ID: {order.orderId}</Typography>
         <Typography variant="subtitle2" color="textSecondary">
           Date: {new Date(order.createdAt).toLocaleDateString()}
         </Typography>

@@ -202,6 +202,7 @@ export default function OrdersPage() {
                     key={order.orderId}
                     sx={{
                       backgroundColor: order.isViewed ? "#e0f7fa" : "#f9f9f9",
+                      fontWeight: order.isViewed ? "800" : "600",
                     }}
                   >
                     <TableCell>{order.orderId}</TableCell>

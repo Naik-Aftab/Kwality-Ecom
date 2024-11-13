@@ -190,8 +190,7 @@ const Checkout = () => {
 
       // Clear cart and redirect to thank you page
       dispatch(clearCart());
-      const id = "672f69c3fd29ce73747f77d0";
-      router.push(`/orderInvoice/${id}`);
+      router.push(`/orderInvoice/${orderResponse.data._id}`);
     } catch (error) {
       console.error("Unexpected error:", error);
       await Swal.fire({
