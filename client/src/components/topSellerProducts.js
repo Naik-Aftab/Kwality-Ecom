@@ -75,7 +75,7 @@ export const TopSellerList = () => {
   }
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 overflow-hidden">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
         Top Selling Products
       </h1>

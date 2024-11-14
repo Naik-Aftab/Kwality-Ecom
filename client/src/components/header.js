@@ -10,11 +10,13 @@ import {
   CircularProgress,
   Button,
   Box,
+  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 
 const Header = () => {
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -23,10 +25,9 @@ const Header = () => {
 
   useEffect(() => setIsMounted(true), []);
 
-  // Debounce search handler for better performance
   const handleSearch = useCallback(async () => {
     if (!searchTerm) {
-      setSearchResults([]); // Clear search results if input is empty
+      setSearchResults([]);
       return;
     }
 
@@ -43,7 +44,6 @@ const Header = () => {
     }
   }, [searchTerm]);
 
-  // Debounce effect for search input
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       handleSearch();
@@ -52,15 +52,38 @@ const Header = () => {
   }, [searchTerm, handleSearch]);
 
   return (
-    <header>
-      <AppBar position="static" elevation={0} sx={{ background: "#fff" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
+    <header className="container">
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{ background: "#fff", padding: "8px 0px" }}
+      >
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+          }}
+        >
+          {/* Logo */}
           <Link href="/">
-            <Box component="img" src="/logo.png" alt="Logo" sx={{ height: 80 }} />
+            <Box
+              component="img"
+              src="/logo.png"
+              alt="Logo"
+              sx={{ width: isMobile ? 60 : 90, objectFit: "contain" }}
+            />
           </Link>
 
           {/* Search Bar */}
-          <Box sx={{ position: "relative", width: "50%" }}>
+          <Box
+            sx={{
+              position: "relative",
+              width: { xs: "60%", sm: "50%" },
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <InputBase
               placeholder="Search Products …"
               value={searchTerm}
@@ -70,11 +93,18 @@ const Header = () => {
                 borderRadius: 50,
                 padding: "8px 16px",
                 width: "100%",
+                pr: 5, // Add right padding to make space for the search icon
               }}
               inputProps={{ "aria-label": "search" }}
             />
             <IconButton
-              sx={{ position: "absolute", right: 0, top: 0, margin: 1 }}
+              sx={{
+                position: "absolute",
+                right: 4, // Adjust as necessary to bring it closer to the edge
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#000",
+              }}
               onClick={handleSearch}
             >
               {loading ? <CircularProgress size={24} /> : <SearchIcon />}
@@ -102,7 +132,15 @@ const Header = () => {
                     key={product._id}
                     legacyBehavior
                   >
-                    <a style={{ display: "flex", padding: "8px", color: "#4a4a4a", textDecoration: "none", alignItems: "center" }}>
+                    <a
+                      style={{
+                        display: "flex",
+                        padding: "8px",
+                        color: "#4a4a4a",
+                        textDecoration: "none",
+                        alignItems: "center",
+                      }}
+                    >
                       <Box
                         component="img"
                         src={`${product.images[0]}`}
@@ -124,7 +162,10 @@ const Header = () => {
           </Box>
 
           {/* Cart Icon */}
-          <IconButton color="inherit" sx={{ color: "black" , width:"50px", height:"50px" }}>
+          <IconButton
+            color="inherit"
+            sx={{ color: "black", width: "50px", height: "50px" }}
+          >
             <Link href="/cart" style={{ position: "relative" }}>
               <ShoppingCartOutlinedIcon />
               {isMounted && totalQuantity > 0 && (
@@ -146,32 +187,37 @@ const Header = () => {
                   }}
                 >
                   {totalQuantity}
-                </Box> 
-              )} 
+                </Box>
+              )}
             </Link>
           </IconButton>
 
-          <Link href="/bulkOrder" passHref>
-            <Button
-              size="small"
-              sx={{
-                color: "white",
-                background: "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
-                borderRadius: 25,
-                boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
-                padding: "10px 20px",
-                fontWeight: "bold",
-                transition: "0.3s ease",
-                "&:hover": {
-                  background: "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
-                  transform: "scale(1.05)",
-                  boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
-                },
-              }}
-            >
-              Bulk Order
-            </Button>
-          </Link>
+          {/* Bulk Order Button */}
+          {!isMobile && (
+            <Link href="/bulkOrder" passHref>
+              <Button
+                size="small"
+                sx={{
+                  color: "white",
+                  background:
+                    "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
+                  borderRadius: 25,
+                  boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
+                  padding: "10px 20px",
+                  fontWeight: "bold",
+                  transition: "0.3s ease",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
+                    transform: "scale(1.05)",
+                    boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
+                  },
+                }}
+              >
+                Bulk Order
+              </Button>
+            </Link>
+          )}
         </Toolbar>
       </AppBar>
     </header>

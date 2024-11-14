@@ -42,26 +42,26 @@ export const Category = () => {
 
 
   return (
-    <div className="flex flex-wrap justify-center p-4">
-      {categories.map((category) => (
-         <Link key={category.id} href={`/categories/${category._id}`} passHref>
-        <div key={category._id}
-          className="max-w-sm mx-4 mb-8 p-4 shadow-lg rounded-lg transition-transform transform hover:scale-105" 
-        >
-          <div className="flex justify-center mb-2">
-            <img
-              src={`${category.image}`} 
-              alt={category.name}
-              className="h-32 w-32 object-cover rounded-full"
-            />
-          </div>
-
-          <div className="text-center">
-            <h5 className="text-xl font-bold text-gray-800">{category.name}</h5>
-          </div>
+    <div className="container grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 justify-center p-4">
+  {categories.map((category) => (
+    <Link key={category._id} href={`/categories/${category._id}`} passHref>
+      <div
+        className="max-w-sm mx-auto mb-5 p-4 shadow-lg rounded-lg transition-transform transform hover:scale-105"
+      >
+        <div className="flex justify-center mb-2">
+          <img
+            src={`${category.image}`}
+            alt={category.name}
+            className="h-32 w-32 object-cover rounded-full"
+          />
         </div>
-        </Link>
-      ))}
-    </div>
+
+        <div className="text-center">
+          <h5 className="text-xl font-bold text-gray-800">{category.name}</h5>
+        </div>
+      </div>
+    </Link>
+  ))}
+</div>
   );
 };

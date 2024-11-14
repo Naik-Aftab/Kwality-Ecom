@@ -360,73 +360,72 @@ const Checkout = () => {
           </div>
 
           {/* Right Column - Order Summary */}
-          <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
-            <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
+          <div className="p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+  <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
 
-            {/* Cart Items */}
-            {cartItems.length > 0 ? (
-              <>
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-center mb-4"
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={`${item.image}`}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg mr-4"
-                      />
-                      <div>
-                        <h3 className="text-lg font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-500">{item.weight}</p>
-                        <p className="text-gray-600">
-                          {item.quantity} x ₹{item.price.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="font-semibold">
-                      ₹{(item.price * item.quantity).toFixed(2)}
-                    </p>
-                   </div>
-                  
-                ))}
-                {/* Button to Modify Cart */}
-                <Box className="flex justify-between align-middle">
-                <Link href="/cart" passHref>
-                  <Button variant="outlined" color="secondary" className="mt-4">
-                    Modify Cart
-                  </Button>
-                </Link>
-                <Typography
-                       variant="body2"
-                       sx={{ color: "green", fontWeight: "bold", mb:"4px" }}
-                     >
-                       {" "}
-                       <BoltIcon sx={{ color: "yellow" }} />
-                       Get Delivered in 2 Hours
-                     </Typography>
-                </Box>
-                {/* Total Price */}
-                <div className="border-t mt-4 pt-4">
-                  <div className="flex justify-between mb-2">
-                    <p>Total Items: {totalQuantity}</p>
-                    <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                  <p>Delivery Charges:</p>
-                  <p>₹ 0.00</p>
-                </div>
-                  <div className="flex justify-between font-bold">
-                    <p>Total Amount:</p>
-                    <p>₹{totalAmount.toFixed(2)}</p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p>No items in the cart.</p>
-            )}
+  {/* Cart Items */}
+  {cartItems.length > 0 ? (
+    <>
+      {cartItems.map((item) => (
+        <div
+          key={item.id}
+          className="flex flex-col sm:flex-row justify-between items-center mb-4"
+        >
+          <div className="flex items-center mb-4 sm:mb-0">
+            <img
+              src={`${item.image}`}
+              alt={item.name}
+              className="w-16 h-16 object-cover rounded-lg mr-4"
+            />
+            <div>
+              <h3 className="text-lg font-medium">{item.name}</h3>
+              <p className="text-sm text-gray-500">{item.weight}</p>
+              <p className="text-gray-600">
+                {item.quantity} x ₹{item.price.toFixed(2)}
+              </p>
+            </div>
           </div>
+          <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
+        </div>
+      ))}
+
+      {/* Button to Modify Cart */}
+      <Box className="flex flex-col sm:flex-row justify-between items-center sm:items-start mb-4">
+        <Link href="/cart" passHref>
+          <Button variant="outlined" color="secondary" className="w-full sm:w-auto mt-4 sm:mt-0">
+            Modify Cart
+          </Button>
+        </Link>
+        <Typography
+          variant="body2"
+          sx={{ color: "green", fontWeight: "bold", mb: "4px", mt: { sm: 0, xs: 2 } }}
+        >
+          <BoltIcon sx={{ color: "yellow" }} />
+          Get Delivered in 2 Hours
+        </Typography>
+      </Box>
+
+      {/* Total Price */}
+      <div className="border-t mt-4 pt-4">
+        <div className="flex flex-col sm:flex-row justify-between mb-2">
+          <p>Total Items: {totalQuantity}</p>
+          <p>Subtotal: ₹{totalAmount.toFixed(2)}</p>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between mb-2">
+          <p>Delivery Charges:</p>
+          <p>₹ 0.00</p>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between font-bold">
+          <p>Total Amount:</p>
+          <p>₹{totalAmount.toFixed(2)}</p>
+        </div>
+      </div>
+    </>
+  ) : (
+    <p>No items in the cart.</p>
+  )}
+</div>
+
         </div>
       </div>
       <UspsSection />

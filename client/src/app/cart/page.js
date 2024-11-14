@@ -64,37 +64,41 @@ const Cart = () => {
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white p-4 rounded-lg shadow-lg flex items-center justify-between hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white p-4 rounded-lg shadow-lg flex flex-col md:flex-row md:items-center justify-between hover:shadow-xl transition-shadow duration-300"
                   >
                     {/* Product Image and Details */}
-                    <div className="flex items-center">
+                    <div className="flex items-center mb-4 md:mb-0">
                       <img
                         src={`${item.image}`}
                         alt={item.name}
-                        className="w-20 h-20 object-cover rounded-lg"
+                        className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
                         onError={(e) => {
                           e.target.style.display = "none";
                         }}
                       />
                       <div className="ml-4">
-                        <h3 className="text-xl font-semibold">{item.name}</h3>
-                        <p className="text-sm text-gray-500">
-                          {item.weight} 
+                        <h3 className="text-lg md:text-xl font-semibold">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs md:text-sm text-gray-500">
+                          {item.weight}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs md:text-sm text-gray-500">
                           Price: ₹{item.price}
                         </p>
                         <div className="flex items-center my-1">
                           <button
                             onClick={() => handleDecreaseQuantity(item)}
-                            className="w-8 h-8 flex justify-center items-center text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform "
+                            className="w-6 h-6 md:w-8 md:h-8 flex justify-center items-center text-sm md:text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform"
                           >
                             -
                           </button>
-                          <span className="mx-2">{item.quantity}</span>
+                          <span className="mx-2 text-sm md:text-base">
+                            {item.quantity}
+                          </span>
                           <button
                             onClick={() => handleIncreaseQuantity(item)}
-                            className="w-8 h-8 flex justify-center text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform "
+                            className="w-6 h-6 md:w-8 md:h-8 flex justify-center items-center text-sm md:text-lg font-semibold text-white bg-neutral-200 rounded-full hover:bg-blue-600 focus:outline-none transition-all duration-300 ease-in-out transform"
                           >
                             +
                           </button>
@@ -102,13 +106,13 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end">
-                      <p className="text-lg font-bold">
+                    <div className="flex flex-row md:flex-col justify-between w-full md:w-auto items-start md:items-end">
+                      <p className="text-sm md:text-lg font-bold order-1 md:order-none">
                         Subtotal: ₹{item.price * item.quantity}
                       </p>
                       <button
                         onClick={() => handleRemoveFromCart(item.id)}
-                        className="mt-2 text-red-500 hover:text-red-700 transition-colors"
+                        className="md:mt-0 text-sm md:text-base text-red-500 hover:text-red-700 transition-colors order-2 md:order-none md:ml-4"
                       >
                         Remove
                       </button>
