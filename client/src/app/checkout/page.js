@@ -34,19 +34,31 @@ const Checkout = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState({ email: '', phone: '' });
   const [apartment_address, setApartment_address] = useState("");
   const [addressComponents, setAddressComponents] = useState({});
   const [shippingAddress, setShippingAddress] = useState({
     street_address1: "",
-    city: "",
     apartment_address: "",
+    city: "",
     state: "",
     pincode: "",
     country: "",
     lat: "",
     lng: "",
   });
-  const updatedApartmentAddress = apartment_address;
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    console.log(phone);
+    const phoneRegex = /^[0-9]{10}$/; // Example: Matches 10-digit numbers
+    return phoneRegex.test(phone);
+  };
+
 
   const [paymentMethod, setPaymentMethod] = useState("cashOnDelivery"); // Default payment method
 
@@ -55,27 +67,51 @@ const Checkout = () => {
 
     // Update the shippingAddress state with the selected address components
     setShippingAddress({
-      street_address1: selectedAddressComponents.street_address1,
-      city: selectedAddressComponents.city,
-      apartment_address: "flat no",
-      state: selectedAddressComponents.state,
-      pincode: selectedAddressComponents.pincode,
-      country: selectedAddressComponents.country,
-      lat: selectedAddressComponents.latitude,
-      lng: selectedAddressComponents.longitude,
+      street_address1: selectedAddressComponents.street_address1 || "",
+      city: selectedAddressComponents.city || "",
+      state: selectedAddressComponents.state || "",
+      pincode: selectedAddressComponents.pincode || "",
+      country: selectedAddressComponents.country || "",
+      lat: selectedAddressComponents.latitude || "",
+      lng: selectedAddressComponents.longitude || "",
+      apartment_address, 
     });
   };
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
+    setApartment_address(value);
     setShippingAddress((prevAddress) => ({
       ...prevAddress,
       [name]: value,
     }));
   };
 
+  const handleApartmentAddressChange = (e) => {
+    const { value } = e.target;
+    setApartment_address(value); 
+    setShippingAddress((prevAddress) => ({
+      ...prevAddress,
+      apartment_address: value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault();    
+
+    // Reset errors
+    const newErrors = { email: '', phone: '' };
+
+    if (!validateEmail(email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (!validatePhone(phone)) {
+      newErrors.phone = 'Phone number must be a 10-digit number.';
+    }
+
+    setErrors(newErrors);
+
     const customerData = {
       fullName,
       email,
@@ -105,7 +141,7 @@ const Checkout = () => {
 
       const customerId = customerResponse.data.customer._id;
       console.log("customerResponse.data.customer", customerResponse.data);
-
+      
       // Step 2: Create Order
       const orderData = {
         customer: customerId,
@@ -211,7 +247,7 @@ const Checkout = () => {
     <>
       <div className="container mx-auto px-6 py-10">
         <h1 className="text-4xl font-bold mb-6 text-center">Checkout</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column - Shipping Information */}
           <div className="p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
             <h2 className="text-2xl font-semibold mb-4">
@@ -240,7 +276,9 @@ const Checkout = () => {
                   fullWidth
                   sx={{ mb: 2 }}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}                  
+                  error={!!errors.email}
+                  helperText={errors.email}
                   required
                 />
                 <TextField
@@ -249,7 +287,9 @@ const Checkout = () => {
                   fullWidth
                   sx={{ mb: 2 }}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value)}                  
+                  error={!!errors.phone}
+                  helperText={errors.phone}
                   required
                 />
 
@@ -265,9 +305,10 @@ const Checkout = () => {
                   fullWidth
                   sx={{ mb: 2 }}
                   value={apartment_address}
-                  onChange={(e) => setApartment_address(e.target.value)}
+                  onChange={handleApartmentAddressChange}
                   required
                 />
+
                 <Box className="flex space-x-4" sx={{ mb: 2 }}>
                   <TextField
                     label="City"
@@ -360,7 +401,7 @@ const Checkout = () => {
           </div>
 
           {/* Right Column - Order Summary */}
-          <div className="p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl">
+          <div className="p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg transition-shadow duration-300 hover:shadow-xl" style={{position:"sticky",top:"20px"}}>
   <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
 
   {/* Cart Items */}
@@ -424,7 +465,7 @@ const Checkout = () => {
   ) : (
     <p>No items in the cart.</p>
   )}
-</div>
+          </div>
 
         </div>
       </div>

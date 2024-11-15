@@ -53,7 +53,7 @@ const BulkOrder = () => {
     if (product) {
       const cartItem = {
         id: product._id,
-        name: `${product.name} - ${selectedWeight}Kg`,
+        name: `${product.name} - ${selectedWeight}`,
         description: product.description,
         price,
         weight: selectedWeight,
@@ -102,7 +102,7 @@ const BulkOrder = () => {
                       : "bg-gray-300 text-black"
                   } px-4 py-2 rounded`}
                 >
-                  {variation.weight} kg
+                  {variation.weight}
                 </button>
               ))}
             </div>

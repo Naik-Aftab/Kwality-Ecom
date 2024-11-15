@@ -34,29 +34,32 @@ export const Cta = () => {
             fontWeight: "bold",
           }}
         >
-          We Deliver the Next Day from 10:00 AM to 08:00 PM
+          For Bulk Order Please Click Below !!  
         </Typography>
 
-        <Link href="tel:+91111111111" passHref>
-          <Button
-            sx={{
-              background: "linear-gradient(to right, #3b82f6, #2563eb)",
-              color: "white",
-              px: 3,
-              py: 1.5,
-              borderRadius: 1,
-              fontWeight: "medium",
-              boxShadow: 3,
-              transition: "transform 0.3s ease-in-out, background-color 0.3s",
-              "&:hover": {
-                background: "linear-gradient(to right, #60a5fa, #3b82f6)",
-                transform: "scale(1.05)",
-              },
-            }}
-          >
-            Call Now
-          </Button>
-        </Link>
+        <Link href="/bulkOrder" passHref>
+              <Button
+                size="small"
+                sx={{
+                  color: "white",
+                  background:
+                    "linear-gradient(45deg, #D32F2F 30%, #C00000 90%)",
+                  borderRadius: 25,
+                  boxShadow: "0 3px 5px 2px rgba(192, 0, 0, .3)",
+                  padding: "10px 20px",
+                  fontWeight: "bold",
+                  transition: "0.3s ease",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(45deg, #B71C1C 30%, #8B0000 90%)",
+                    transform: "scale(1.05)",
+                    boxShadow: "0 5px 15px 2px rgba(128, 0, 0, .4)",
+                  },
+                }}
+              >
+                Bulk Order
+              </Button>
+            </Link>
       </Box>
     </Box>
   );

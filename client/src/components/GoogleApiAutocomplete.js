@@ -73,7 +73,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
             name="street_address1" 
             variant="outlined" 
             fullWidth 
-            className="mb-4" 
+            className="" 
             required 
             placeholder="Select location from suggestions"
             error={!!errorMessage}
