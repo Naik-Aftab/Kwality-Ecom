@@ -11,9 +11,39 @@ export default function ForgotPassword() {
   const [tempPassword, setTempPassword] = useState(""); // State for temporary password
   const [newPassword, setNewPassword] = useState(""); // State for new password
   const [confirmPassword, setConfirmPassword] = useState(""); // State for password confirmation
+  const [errors, setErrors] = useState({}); // Validation errors
+
+  // Validate email
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  // Validate reset form
+  const validateResetForm = () => {
+    const newErrors = {};
+    if (!tempPassword) newErrors.tempPassword = "Temporary password is required.";
+    if (!newPassword) newErrors.newPassword = "New password is required.";
+    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your new password.";
+    if (newPassword && newPassword.length < 8)
+      newErrors.newPassword = "Password must be at least 8 characters long.";
+    if (newPassword && confirmPassword && newPassword !== confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match.";
+    return newErrors;
+  };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    const emailErrors = {};
+    if (!email) {
+      emailErrors.email = "Email is required.";
+    } else if (!validateEmail(email)) {
+      emailErrors.email = "Invalid email address.";
+    }
+
+    setErrors(emailErrors);
+    if (Object.keys(emailErrors).length > 0) return;
+
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/forgot-password`, { email });
       setMessage(res.data.message); // Display success message from API
@@ -28,21 +58,20 @@ export default function ForgotPassword() {
 
   const handleResetSubmit = async (e) => {
     e.preventDefault();
+    const resetErrors = validateResetForm();
+    setErrors(resetErrors);
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage("New password and confirmation do not match.");
-      return;
-    }
+    if (Object.keys(resetErrors).length > 0) return;
 
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/reset-password`, {
         email,
         tempPassword,
-        newPassword
+        newPassword,
       });
       setMessage(res.data.message); // Display success message from API
       setErrorMessage("");
-      // Optionally, redirect or perform other actions
+      setShowResetForm(false); // Optionally reset the form
     } catch (error) {
       const errorResponse = error.response?.data?.message || "Error resetting password.";
       setErrorMessage(errorResponse);
@@ -52,7 +81,17 @@ export default function ForgotPassword() {
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5">
-      <Box component="form" onSubmit={showResetForm ? handleResetSubmit : handleEmailSubmit} sx={{ maxWidth: 400, bgcolor: 'white', padding: 4, borderRadius: 2, boxShadow: 3 }}>
+      <Box
+        component="form"
+        onSubmit={showResetForm ? handleResetSubmit : handleEmailSubmit}
+        sx={{
+          maxWidth: 400,
+          bgcolor: "white",
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+        }}
+      >
         <Typography variant="h5" gutterBottom align="center">
           {showResetForm ? "Reset Password" : "Forgot Password"}
         </Typography>
@@ -67,6 +106,8 @@ export default function ForgotPassword() {
               fullWidth
               margin="normal"
               required
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <Button variant="contained" color="primary" type="submit" fullWidth>
               Send New Password
@@ -82,6 +123,8 @@ export default function ForgotPassword() {
               fullWidth
               margin="normal"
               required
+              error={!!errors.tempPassword}
+              helperText={errors.tempPassword}
             />
             <TextField
               label="New Password"
@@ -91,6 +134,8 @@ export default function ForgotPassword() {
               fullWidth
               margin="normal"
               required
+              error={!!errors.newPassword}
+              helperText={errors.newPassword}
             />
             <TextField
               label="Confirm New Password"
@@ -100,6 +145,8 @@ export default function ForgotPassword() {
               fullWidth
               margin="normal"
               required
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
             />
             <Button variant="contained" color="primary" type="submit" fullWidth>
               Reset Password

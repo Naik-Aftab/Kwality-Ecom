@@ -75,7 +75,7 @@ const createOrder = async (req, res) => {
     res.status(200).json(response.data);
     // console.log("porter Response", response)
   } catch (error) {
-    console.error('Error creating Porter order:', error.response?.data || error.message);
+    // console.error('Error creating Porter order:', error.response?.data || error.message);
     res.status(500).json({ message: 'Failed to create Porter order', error: error.message });
   }
 };

@@ -1,5 +1,5 @@
+const Joi = require('joi');
 const crypto = require("crypto");
-const bcrypt = require('bcryptjs');
 const sendEmail = require("../../utils/sendMail");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
@@ -11,10 +11,32 @@ function generateRandomPassword() {
   return crypto.randomBytes(8).toString('hex'); // Generate a 16-character random password
 }
 
-// @desc    Register a new User
-// @route   POST /api/auth/register
+// Register a new User
+
 exports.register = async (req, res) => {
   const { fullName, email } = req.body;
+
+    // Define validation schema
+    const schema = Joi.object({
+      fullName: Joi.string().min(3).max(50).required().messages({
+        'string.empty': 'Full name is required.',
+        'string.min': 'Full name must be at least 3 characters.',
+        'string.max': 'Full name cannot exceed 50 characters.',
+      }),
+      email: Joi.string().email().required().messages({
+        'string.empty': 'Email is required.',
+        'string.email': 'Invalid email format.',
+      }),
+    });
+  
+    // Validate input data
+    const { error } = schema.validate({ fullName, email }, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: error.details.map((err) => err.message),
+      });
+    }
 
   try {
     // Check if User already exists
@@ -46,10 +68,20 @@ exports.register = async (req, res) => {
   }
 };
 
-
 // Complete registration by checking password
 exports.completeRegistration = async (req, res) => {
   const { fullName, email, password } = req.body;
+
+  const registrationSchema = Joi.object({
+    fullName: Joi.string().min(3).max(50).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+  });
+
+  const { error } = registrationSchema.validate({ fullName, email, password });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   try {
     // Check if the password matches the temporary password
@@ -62,7 +94,7 @@ exports.completeRegistration = async (req, res) => {
     const newUser = await User.create({
       fullName,
       email,
-      password, // You may want to hash this in real use cases
+      password,
     });
 
     // console.log('User registered:', newUser);
@@ -87,10 +119,20 @@ exports.completeRegistration = async (req, res) => {
   }
 };
 
-// @desc    Authenticate a User & get token
-// @route   POST /api/auth/login
+// Authenticate a User & get token
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
+  const loginSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(5).required(),
+  });
+
+  // Validate input using Joi
+  const { error } = loginSchema.validate({ email, password });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   try {
     // Find User by email
@@ -119,10 +161,19 @@ exports.login = async (req, res) => {
   }
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
+// Forgot password
+
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
+
+  const forgotPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+  });
+
+  const { error } = forgotPasswordSchema.validate({ email });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   try {
     // Check if User exists
@@ -164,10 +215,20 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// @desc    Reset password
-// @route   PUT /api/auth/reset-password/
+// Reset password
 exports.resetPassword = async (req, res) => {
   const { email, tempPassword, newPassword } = req.body;
+
+const resetPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+  tempPassword: Joi.string().required(),
+  newPassword: Joi.string().min(8).required(), // Enforce minimum password strength
+});
+
+const { error } = resetPasswordSchema.validate({ email, tempPassword, newPassword });
+if (error) {
+  return res.status(400).json({ message: error.details[0].message });
+}
 
   try {
     // Find user by email

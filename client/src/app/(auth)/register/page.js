@@ -29,10 +29,33 @@ export default function Register() {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
 
+  const validate = () => {
+    const newErrors = {};
+    if (!fullName.trim()) {
+      newErrors.fullName = "Full Name is required.";
+    }
+    if (!email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Invalid email format.";
+    }
+    if (!isPasswordDisabled && !password.trim()) {
+      newErrors.password = "Password is required.";
+    } else if (password && password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
   const handleRegister = async () => {
+    if (!validate()) return;
+
     try {
       setLoading(true);
       setIsEmailSent(false);
@@ -53,6 +76,7 @@ export default function Register() {
   };
 
   const handlePasswordSubmit = async () => {
+    if (!validate()) return;
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/complete-registration`, {
         fullName,
@@ -63,7 +87,6 @@ export default function Register() {
       if (res.status === 201) {
         setSuccessMessage("Registration completed successfully!");
         setErrorMessage("");
-        // Clear password field and other relevant fields
         setPassword(""); // Clear password field
         setFullName(""); // Clear full name field (if necessary)
         setEmail(""); // Clear email field (if necessary)
@@ -96,6 +119,8 @@ export default function Register() {
             fullWidth
             margin="normal"
             variant="outlined"
+            error={!!errors.fullName}
+            helperText={errors.fullName}
           />
           <TextField
             label="Email"
@@ -105,6 +130,8 @@ export default function Register() {
             fullWidth
             margin="normal"
             variant="outlined"
+            error={!!errors.email}
+            helperText={errors.email}
           />
 
           {isEmailSent && (
@@ -117,6 +144,8 @@ export default function Register() {
                 fullWidth
                 margin="normal"
                 variant="outlined"
+                error={!!errors.password}
+                helperText={errors.password}
                 disabled={isPasswordDisabled}
               />
               <SubmitButton

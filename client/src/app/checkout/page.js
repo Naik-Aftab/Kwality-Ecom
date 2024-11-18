@@ -176,46 +176,46 @@ const Checkout = () => {
 
       console.log("orderResponse", orderResponse.data);
 
-      // Step 3: Call Porter API to create order
-      const porterOrderData = {
-        request_id: orderResponse.data._id,
-        email_id: customerResponse.data.customer.email,
-        drop_details: {
-          address: {
-            apartment_address: apartment_address,
-            street_address1: addressComponents.street_address1,
-            city: addressComponents.city,
-            state: addressComponents.state,
-            pincode: addressComponents.pincode,
-            country: addressComponents.country,
-            lat: addressComponents.latitude,
-            lng: addressComponents.longitude,
-            contact_details: {
-              name: customerResponse.data.customer.fullName,
-              phone_number: `+91${customerResponse.data.customer.phone}`,
-            },
-          },
-        },
-      };
+      // // Step 3: Call Porter API to create order
+      // const porterOrderData = {
+      //   request_id: orderResponse.data._id,
+      //   email_id: customerResponse.data.customer.email,
+      //   drop_details: {
+      //     address: {
+      //       apartment_address: apartment_address,
+      //       street_address1: addressComponents.street_address1,
+      //       city: addressComponents.city,
+      //       state: addressComponents.state,
+      //       pincode: addressComponents.pincode,
+      //       country: addressComponents.country,
+      //       lat: addressComponents.latitude,
+      //       lng: addressComponents.longitude,
+      //       contact_details: {
+      //         name: customerResponse.data.customer.fullName,
+      //         phone_number: `+91${customerResponse.data.customer.phone}`,
+      //       },
+      //     },
+      //   },
+      // };
 
-      let porterResponse;
-      try {
-        porterResponse = await axios.post(
-          `
-          ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
-          porterOrderData
-        );
-      } catch (error) {
-        console.error("Error creating Porter order:", error);
-        await Swal.fire({
-          title: "Error",
-          text: "Failed to schedule delivery. Please try again.",
-          icon: "error",
-        });
-        return;
-      }
+      // let porterResponse;
+      // try {
+      //   porterResponse = await axios.post(
+      //     `
+      //     ${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/create`,
+      //     porterOrderData
+      //   );
+      // } catch (error) {
+      //   console.error("Error creating Porter order:", error);
+      //   await Swal.fire({
+      //     title: "Error",
+      //     text: "Failed to schedule delivery. Please try again.",
+      //     icon: "error",
+      //   });
+      //   return;
+      // }
 
-      console.log("porterResponse", porterResponse);
+      // console.log("porterResponse", porterResponse);
 
       // SweetAlert confirmation on success
       await Swal.fire({
@@ -262,6 +262,7 @@ const Checkout = () => {
               <form onSubmit={handleSubmit}>
                 <TextField
                   label="Full Name"
+                  type="text"
                   variant="outlined"
                   fullWidth
                   sx={{ mb: 2 }}
@@ -283,6 +284,7 @@ const Checkout = () => {
                 />
                 <TextField
                   label="Phone"
+                  type="tel"
                   variant="outlined"
                   fullWidth
                   sx={{ mb: 2 }}
@@ -332,7 +334,7 @@ const Checkout = () => {
 
                 <Box sx={{ mb: 2 }}>
                   <TextField
-                    label="Instructions"
+                    label="Instructions For The Order"
                     variant="outlined"
                     fullWidth
                     multiline

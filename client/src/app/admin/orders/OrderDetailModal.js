@@ -22,7 +22,6 @@ import {
   Grid,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import EditIcon from "@mui/icons-material/Edit"; // Import Edit icon
 
 export default function OrderDetailModal({
@@ -114,7 +113,7 @@ export default function OrderDetailModal({
           </Typography>
           <Typography variant="body1" color="text.secondary">
             <strong>Shipping Address:</strong>{" "}
-            {`${order.customer.shippingAddress.street_address1}, ${order.customer.shippingAddress.city}, ${order.customer.shippingAddress.state}, ${order.customer.shippingAddress.pincode}`}
+            {`${order.customer.shippingAddress?.street_address1}, ${order.customer.shippingAddress?.city}, ${order.customer.shippingAddress?.state}, ${order.customer.shippingAddress?.pincode}`}
           </Typography>
         </Box>
 
@@ -167,11 +166,12 @@ export default function OrderDetailModal({
         <Box mt={2} mb={2}>
           
           <Typography variant="h6" mt={2}>
-            <CurrencyRupeeIcon /> <strong>Total Payable:</strong> ₹{" "}
+            <strong>Total Payable:</strong> ₹{" "}
             {order.totalAmount}
           </Typography>
         </Box>
       </DialogContent>
+
       <Box display="flex" justifyContent="flex-end" p={2}>
         <Button
           variant="contained"

@@ -109,18 +109,24 @@ const createInvoice = (order) => {
   // Table Rows for Each Product
   order.products.forEach((item) => {
     const { name, price, quantity, product } = item;
-    const weights = [
-      product.weight.grams && `${product.weight.grams}`,
-      product.weight.pieces && `${product.weight.pieces}`,
-      product.weight.serves && `${product.weight.serves}`
-    ].filter(Boolean).join(" | ");
+    const weights = product.weight
+    ? [
+        product.weight.grams && `${product.weight.grams}`,
+        product.weight.pieces && `${product.weight.pieces}`,
+        product.weight.serves && `${product.weight.serves}`,
+      ]
+        .filter(Boolean)
+        .join(" | ")
+    : "";
 
     doc
       .fillColor(textColor)
       .fontSize(10)
-      .text(name, startX + 10, y)
-      .text(weights, startX + 10, y + 12) // Display weight below the product name
-
+      .text(name, startX + 10, y);
+      if (weights) {
+        doc.text(weights, startX + 10, y + 12); 
+      }
+    doc
       .text(quantity, startX + columnWidths[0] + 10, y)
       .text(`Rs. ${price.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 10, y)
       .text(`Rs. ${(price * quantity).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 10, y);

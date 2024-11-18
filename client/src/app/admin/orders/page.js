@@ -20,11 +20,13 @@ import {
   Button,
   DialogContent,
   DialogContentText,
-  Snackbar, Alert,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import CancelIcon from "@mui/icons-material/Cancel";
-import OrderDetailModal from "./OrderDetailModal"; // Modal for order details
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import ShippingModal from "./ShippingModal";
+import OrderDetailModal from "./OrderDetailModal";
 import useAuth from "../withauth";
 
 export default function OrdersPage() {
@@ -36,26 +38,24 @@ export default function OrdersPage() {
   const [limit] = useState(10); // Orders per page
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [open, setOpen] = useState(false);
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false); // For cancel confirmation modal
-  const [orderIdToCancel, setOrderIdToCancel] = useState(null); // Order ID to cancel
-  const [cancelMessage, setCancelMessage] = useState(""); // Message for cancel response
+  const [openShippingModal, setOpenShippingModal] = useState(false);
   const [token, setToken] = useState(null); // State for token
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error("No token found. Redirecting...");
+    }
   }, []);
 
   useEffect(() => {
-    // const intervalId = setInterval(() => {
     if (token) {
       fetchOrders();
     }
-    // }, 60000);
-
-    // return () => clearInterval(intervalId);
   }, [token, page]);
 
   const fetchOrders = async () => {
@@ -131,32 +131,31 @@ export default function OrdersPage() {
     }
   };
 
-  const handleCancelClick = (orderId) => {
-    setOrderIdToCancel(orderId);
-    setCancelDialogOpen(true); // Open the cancel confirmation dialog
-    setCancelMessage(""); // Reset the message each time modal opens
-  };
 
-  const confirmCancelOrder = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/porter/${orderIdToCancel}/cancel`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` }, });
+// Handle opening the shipping modal
+const handleOpenShippingModal = async (orderId) => {
+  setLoading(true);
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/orders/${orderId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-      setCancelMessage(response.data.data.message);
-      setSnackbarMessage(response.data.data.message); 
-      fetchOrders(); // Refresh orders list after canceling
-    } catch (error) {
-      const errorMessage =
-        error.response.data.data.message || "Failed to cancel order.";
-      setCancelMessage(errorMessage);
-      setSnackbarMessage(errorMessage); 
-    } finally {
-      setSnackbarOpen(true); // Open Snackbar
-      setCancelDialogOpen(false); // Close the dialog
-    }
-  };
+    setSelectedOrder(response.data); // Store order details in state
+    setOpenShippingModal(true); // Open the modal
+  } catch (error) {
+    console.error("Error fetching order details for shipping:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Close the shipping modal
+const handleCloseShippingModal = () => {
+  setOpenShippingModal(false);
+};
 
   return (
     <Box>
@@ -206,7 +205,7 @@ export default function OrdersPage() {
                     }}
                   >
                     <TableCell>{order.orderId}</TableCell>
-                    <TableCell>{order.customer.fullName}</TableCell>
+                    <TableCell>{order.customer?.fullName}</TableCell>
                     <TableCell>
                       {new Date(order.createdAt).toLocaleDateString()}
                     </TableCell>
@@ -216,9 +215,11 @@ export default function OrdersPage() {
                       <IconButton onClick={() => handleViewOrder(order._id)}>
                         <VisibilityIcon color="primary" />
                       </IconButton>
-                      <IconButton onClick={() => handleCancelClick(order._id)}>
-                        <CancelIcon color="secondary" />
-                      </IconButton>
+                      <IconButton
+                        onClick={() => handleOpenShippingModal(order._id)}
+                      >
+                        <LocalShippingIcon color="secondary" />
+                      </IconButton>                     
                     </TableCell>
                   </TableRow>
                 ))}
@@ -237,60 +238,30 @@ export default function OrdersPage() {
 
           {/* Order Detail Modal */}
           {selectedOrder && (
-            <OrderDetailModal
-              order={selectedOrder}
-              open={open}
-              onClose={() => setOpen(false)}
-              onUpdateStatus={updateOrderStatus}
-            />
+           <OrderDetailModal order={selectedOrder} open={open} onClose={() => setOpen(false)} onUpdateStatus={updateOrderStatus} />
           )}
 
-          {/* Cancel Order Confirmation Dialog */}
-          <Dialog
-            open={cancelDialogOpen}
-            onClose={() => setCancelDialogOpen(false)}
+         {/* Shipping Modal */}
+         {selectedOrder && (
+         <ShippingModal open={openShippingModal} handleClose={handleCloseShippingModal} order={selectedOrder} />
+        )}
+
+
+          {/* Snackbar for Cancel Order Result */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={4000} // Automatically close after 4 seconds
+            onClose={() => setSnackbarOpen(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
           >
-            <DialogTitle>Confirm Cancel Order</DialogTitle>
-            <DialogContent>
-              {cancelMessage ? (
-                <DialogContentText>{cancelMessage}</DialogContentText>
-              ) : (
-                <DialogContentText>
-                  Are you sure you want to cancel this order?
-                </DialogContentText>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => setCancelDialogOpen(false)}
-                color="primary"
-              >
-                {cancelMessage ? "Close" : "No, Keep Order"}
-              </Button>
-              {!cancelMessage && (
-                <Button
-                  onClick={confirmCancelOrder}
-                  color="secondary"
-                  autoFocus
-                >
-                  Yes, Cancel Order
-                </Button>
-              )}
-            </DialogActions>
-          </Dialog>
-
-           {/* Snackbar for Cancel Order Result */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000} // Automatically close after 4 seconds
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-
+            <Alert
+              onClose={() => setSnackbarOpen(false)}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </>
       )}
     </Box>

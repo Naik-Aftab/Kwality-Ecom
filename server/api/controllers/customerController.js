@@ -5,13 +5,39 @@ exports.createCustomer = async (req, res) => {
   try {
     const { fullName, email, phone, shippingAddress } = req.body;
 
-    // Validate required fields in shippingAddress
-    const requiredFields = ['apartment_address', 'street_address1', 'city', 'state', 'lat', 'lng', 'pincode'];
-    for (const field of requiredFields) {
-      if (!shippingAddress || !shippingAddress[field]) {
-        return res.status(400).json({ message: `Shipping address is missing field: ${field}` });
+      // Validate required fields in the main body
+      if (!fullName || typeof fullName !== "string" || fullName.trim().length < 2) {
+        return res.status(400).json({ message: "Full name is required and must be at least 2 characters long." });
       }
-    }
+  
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: "A valid email address is required." });
+      }
+  
+      if (!phone || !/^\d{10}$/.test(phone)) {
+        return res.status(400).json({ message: "A valid 10-digit phone number is required." });
+      }
+  
+      // Validate shippingAddress fields
+      if (!shippingAddress || typeof shippingAddress !== "object") {
+        return res.status(400).json({ message: "Shipping address is required and must be an object." });
+      }
+  
+      const requiredFields = ["apartment_address", "street_address1", "city", "state", "lat", "lng", "pincode"];
+      for (const field of requiredFields) {
+        if (!shippingAddress[field]) {
+          return res.status(400).json({ message: `Shipping address is missing field: ${field}` });
+        }
+      }
+  
+      if (!/^\d{6}$/.test(shippingAddress.pincode)) {
+        return res.status(400).json({ message: "Pincode must be a valid 6-digit number." });
+      }
+  
+      // Validate latitude and longitude
+      if (isNaN(shippingAddress.lat) || isNaN(shippingAddress.lng)) {
+        return res.status(400).json({ message: "Latitude and Longitude must be valid numbers." });
+      }
 
     // Create a new customer instance
     const newCustomer = new Customer({

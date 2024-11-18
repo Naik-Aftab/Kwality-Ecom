@@ -152,7 +152,6 @@ exports.createOrder = async (req, res) => {
 };
 
 // @desc    Get all orders
-// @route   GET /api/orders
 exports.getAllOrders = async (req, res) => {
   try {
     // Get pagination and search parameters from the request query
@@ -193,7 +192,6 @@ exports.getAllOrders = async (req, res) => {
 };
 
 // @desc    Get a single order by ID
-// @route   GET /api/orders/:id
 exports.getOrderById = async (req, res) => {
   const { id } = req.params;
 
@@ -234,7 +232,6 @@ exports.getOrderById = async (req, res) => {
 };
 
 // @desc    Update an order
-// @route   PUT /api/orders/:id
 exports.updateOrder = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -282,7 +279,6 @@ exports.updateOrder = async (req, res) => {
 };
 
 // @desc    Delete an order
-// @route   DELETE /api/orders/:id
 exports.deleteOrder = async (req, res) => {
   const { id } = req.params;
 

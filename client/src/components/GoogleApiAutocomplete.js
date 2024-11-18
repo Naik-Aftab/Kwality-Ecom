@@ -46,7 +46,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
       });
 
       // Check if the place is in Maharashtra
-      if (addressComponents.state === 'Maharashtra') {
+      if (addressComponents.state === 'Maharashtra'||'महाराष्ट्र') {
         onAddressSelect(addressComponents);
         console.log("address", addressComponents);
       } else {
@@ -69,7 +69,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
           }}
         >
           <TextField 
-            label="Address (Area / Locality / Building)" 
+            label="Building Name / Locality / Area" 
             name="street_address1" 
             variant="outlined" 
             fullWidth 
