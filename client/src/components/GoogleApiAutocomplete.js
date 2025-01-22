@@ -20,7 +20,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
     if (place && place.address_components) {
       setErrorMessage(''); // Clear any existing error message if a valid place is selected
 
-      console.log("Address google", place.address_components);
+      // console.log("Address google", place.address_components);
 
       const addressComponents = {
         street_address1: place.formatted_address, 
@@ -48,7 +48,7 @@ const GoogleApiAutocomplete = ({ onAddressSelect }) => {
       // Check if the place is in Maharashtra
       if (addressComponents.state === 'Maharashtra'||'महाराष्ट्र') {
         onAddressSelect(addressComponents);
-        console.log("address", addressComponents);
+        // console.log("address", addressComponents);
       } else {
         setErrorMessage('Invalid Address: Please select a location within Maharashtra.');
       }

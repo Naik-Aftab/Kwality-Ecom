@@ -54,7 +54,6 @@ const Checkout = () => {
   };
 
   const validatePhone = (phone) => {
-    console.log(phone);
     const phoneRegex = /^[0-9]{10}$/; // Example: Matches 10-digit numbers
     return phoneRegex.test(phone);
   };
@@ -140,7 +139,7 @@ const Checkout = () => {
       }
 
       const customerId = customerResponse.data.customer._id;
-      console.log("customerResponse.data.customer", customerResponse.data);
+      // console.log("customerResponse.data.customer", customerResponse.data);
       
       // Step 2: Create Order
       const orderData = {

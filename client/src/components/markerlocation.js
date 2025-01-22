@@ -20,9 +20,6 @@ const MapWithMarker = () => {
     const newLng = event.latLng.lng();
     setMarkerPosition({ lat: newLat, lng: newLng });
 
-    console.log("Latitude:", newLat);
-    console.log("Longitude:", newLng);
-
     // Fetch address using Geocoding API
     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLat},${newLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
     const response = await fetch(geocodeUrl);

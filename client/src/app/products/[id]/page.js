@@ -220,7 +220,7 @@ const ProductDetail = () => {
       <UspsSection />
 
         {/* Related Products Section */}
-        <div className="container my-8">
+        <div className="container my-8 overflow-hidden">
         <h1 className="text-3xl font-bold mb-6 text-center">Related Products</h1>
         <Slider {...carouselSettings}>
           {relatedProducts.map((relatedProduct) => (

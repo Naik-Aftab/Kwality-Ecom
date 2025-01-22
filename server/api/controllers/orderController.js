@@ -73,9 +73,9 @@ exports.createOrder = async (req, res) => {
       });
 
     // Log the populated order data
-    console.log("Populated Order:", populatedOrder);
-    console.log("Products in Order:", populatedOrder.products);
-    console.log("Customer in Order:", populatedOrder.customer);
+    // console.log("Populated Order:", populatedOrder);
+    // console.log("Products in Order:", populatedOrder.products);
+    // console.log("Customer in Order:", populatedOrder.customer);
 
     // let buffer;
     try {

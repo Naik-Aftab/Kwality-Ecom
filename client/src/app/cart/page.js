@@ -14,7 +14,7 @@ const Cart = () => {
   const totalQuantity = useSelector((state) => state.cart.totalQuantity);
   const dispatch = useDispatch();
 
-  console.log("cart items", cartItems);
+  // console.log("cart items", cartItems);
 
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -32,14 +32,14 @@ const Cart = () => {
 
   const handleIncreaseQuantity = (item) => {
     const updatedItem = { ...item, quantity: item.quantity + 1 };
-    console.log("+ 1 updated product", updatedItem);
+    // console.log("+ 1 updated product", updatedItem);
     dispatch(addToCart(updatedItem)); // Add the updated quantity to the cart
   };
 
   const handleDecreaseQuantity = (item) => {
     if (item.quantity > 1) {
       const updatedItem = { ...item, quantity: item.quantity - 1 };
-      console.log("- 1 updated product", updatedItem);
+      // console.log("- 1 updated product", updatedItem);
       dispatch(addToCart(updatedItem)); // Add the updated quantity to the cart
     }
   };

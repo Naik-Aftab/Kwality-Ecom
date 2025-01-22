@@ -29,7 +29,7 @@ const OrderInvoice = () => {
             },
           }
         );
-        console.log("order detail", response.data);
+        // console.log("order detail", response.data);
         setOrder(response.data);
       } catch (error) {
         console.error("Error fetching order details:", error);
